@@ -6,9 +6,9 @@ import (
 	"sync"
 	"time"
 	"log"
+    redisDB "github.com/Naganathan05/Load-Pulse/Service"
 )
 
-// LoadTester will run repeated requests on an endpoint and aggregate statistics
 type LoadTester struct {
 	endpoint string
 	conns    int
@@ -19,7 +19,6 @@ type LoadTester struct {
 	rate     time.Duration
 }
 
-// NewTester returns a tester
 func NewTester(r *http.Request, conns int, dur, rate time.Duration, end string) *LoadTester {
 	return &LoadTester{
 		endpoint: end,
@@ -62,20 +61,22 @@ func (l *LoadTester) Run(ch chan Stats) {
     ch <- *l.stats
 }
 
-// Make an individual request and update the stats
 func (l *LoadTester) test() {
     var body []byte
 
-    start := time.Now()
-    resp, err := l.client.Do(l.request)
-    rd := time.Since(start)
+    start := time.Now();
+    redisDB.IncrementRequestCount();
+
+    resp, err := l.client.Do(l.request);
+    rd := time.Since(start);
 
     if err != nil {
         log.Printf("[ERROR]: Request failed: %v", err)
         l.stats.update(0, 0, err)
         return
     }
-    defer resp.Body.Close()
+
+    defer resp.Body.Close();
 
     body, err = io.ReadAll(resp.Body)
     if err != nil {
@@ -86,4 +87,5 @@ func (l *LoadTester) test() {
 
     rs := len(body)
     l.stats.update(rs, rd, nil)
+    redisDB.DecrementRequestCount();
 }

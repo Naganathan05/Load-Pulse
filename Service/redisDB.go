@@ -13,24 +13,30 @@ var client *redis.Client;
 
 var ctx = context.Background();
 
-func IncrementRequestCount() error {
+func IncrementRequestCount() {
 	cfg := Config.GetConfig();
 	err := client.Incr(ctx, cfg.RedisKey).Err();
 	if err != nil {
 		log.Fatal("[ERR]: Error in Incrementing Concurrent Request Count from Redis !!", err);
-		return err;
 	}
-	return nil;
 }
 
-func GetRequestCount() (int64, error) {
+func DecrementRequestCount() {
+	cfg := Config.GetConfig();
+	err := client.Decr(ctx, cfg.RedisKey).Err();
+	if err != nil {
+		log.Fatal("[ERR]: Error in Decrementing Concurrent Request Count from Redis !!", err);
+	}
+}
+
+func GetRequestCount() int64 {
 	cfg := Config.GetConfig();
 	currentCount, err := client.Get(ctx, cfg.RedisKey).Int64();
 	if err != nil {
 		log.Fatal("[ERR]: Error in Fetching Concurrent Requests Count from Redis !!", err);
-		return 0, err;
+		return 0;
 	}
-	return currentCount, nil;
+	return currentCount;
 }
 
 func InitRedisClient() {

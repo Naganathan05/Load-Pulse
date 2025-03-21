@@ -22,26 +22,24 @@ type Request struct {
 	Rate        time.Duration `json:"rate"`
 }
 
-// FromJSON returns a config from a json file
 func fromJSON(path string) (*config, error) {
-	f, err := os.Open(path)
+	f, err := os.Open(path);
 	if err != nil {
-		return nil, err
+		return nil, err;
 	}
-	defer f.Close()
+	defer f.Close();
 
-	data, err := io.ReadAll(f)
+	data, err := io.ReadAll(f);
 	if err != nil {
-		return nil, err
-	}
-
-	var conf config
-
-	err = json.Unmarshal(data, &conf)
-	if err != nil {
-		return nil, err
+		return nil, err;
 	}
 
-	return &conf, nil
+	var conf config;
 
+	err = json.Unmarshal(data, &conf);
+	if err != nil {
+		return nil, err;
+	}
+
+	return &conf, nil;
 }
