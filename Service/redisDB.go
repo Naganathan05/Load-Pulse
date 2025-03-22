@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	Config "github.com/Naganathan05/Load-Pulse/config"
+	config "Load-Pulse/Config"
 	redis "github.com/redis/go-redis/v9"
 )
 
@@ -14,7 +14,7 @@ var client *redis.Client;
 var ctx = context.Background();
 
 func IncrementRequestCount() {
-	cfg := Config.GetConfig();
+	cfg := config.GetConfig();
 	err := client.Incr(ctx, cfg.RedisKey).Err();
 	if err != nil {
 		log.Fatal("[ERR]: Error in Incrementing Concurrent Request Count from Redis !!", err);
@@ -22,7 +22,7 @@ func IncrementRequestCount() {
 }
 
 func DecrementRequestCount() {
-	cfg := Config.GetConfig();
+	cfg := config.GetConfig();
 	err := client.Decr(ctx, cfg.RedisKey).Err();
 	if err != nil {
 		log.Fatal("[ERR]: Error in Decrementing Concurrent Request Count from Redis !!", err);
@@ -30,7 +30,7 @@ func DecrementRequestCount() {
 }
 
 func GetRequestCount() int64 {
-	cfg := Config.GetConfig();
+	cfg := config.GetConfig();
 	currentCount, err := client.Get(ctx, cfg.RedisKey).Int64();
 	if err != nil {
 		log.Fatal("[ERR]: Error in Fetching Concurrent Requests Count from Redis !!", err);

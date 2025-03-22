@@ -3,89 +3,59 @@ package Tester
 import (
 	"io"
 	"net/http"
-	"sync"
 	"time"
-	"log"
-    redisDB "github.com/Naganathan05/Load-Pulse/Service"
+	"Load-Pulse/Service"
+	"Load-Pulse/Statistics"
 )
 
 type LoadTester struct {
-	endpoint string
-	conns    int
-	request  *http.Request
-	client   *http.Client
-	stats    *Stats
-	dur      time.Duration
-	rate     time.Duration
+	Endpoint string
+	Conns    int
+	Request  *http.Request
+	Client   *http.Client
+	Stats    *Statistics.Stats
+	Dur      time.Duration
+	Rate     time.Duration
 }
 
 func NewTester(r *http.Request, conns int, dur, rate time.Duration, end string) *LoadTester {
 	return &LoadTester{
-		endpoint: end,
-		request:  r,
-		client:   &http.Client{},
-		conns:    conns,
-		dur:      dur,
-		rate:     rate,
-		stats:    &Stats{Endpoint: end},
+		Endpoint: end,
+		Request:  r,
+		Client:   &http.Client{},
+		Conns:    conns,
+		Dur:      dur,
+		Rate:     rate,
+		Stats:    &Statistics.Stats{Endpoint: end},
 	}
 }
 
-// Run initializes the LoadTester with its # of conns for a given duration
-// passes the results to the statistics channel
-func (l *LoadTester) Run(ch chan Stats) {
-    var wg sync.WaitGroup
+func (l *LoadTester) RunTest() *Statistics.Stats {
+	var body []byte
+	start := time.Now()
+	Service.IncrementRequestCount()
 
-    for i := 0; i < l.conns; i++ {
-        wg.Add(1)
-        go func() {
-            defer wg.Done()
+	resp, err := l.Client.Do(l.Request)
+	rd := time.Since(start)
 
-            ticker := time.NewTicker(l.rate)
-            defer ticker.Stop()
+	stats := &Statistics.Stats{
+		Endpoint:      l.Endpoint,
+		ResponseDur:   rd,
+		TotalRequests: 1,
+		FailedRequests: 0,
+	}
 
-            stop := time.After(l.dur)
-            for {
-                select {
-                case <-stop:
-                    return
-                case <-ticker.C:
-                    l.test()
-                }
-            }
-        }()
-    }
-    wg.Wait()
+	if err != nil {
+		stats.FailedRequests = 1
+		Service.DecrementRequestCount()
+		return stats
+	}
 
-    l.stats.avg()
-    ch <- *l.stats
-}
+	defer resp.Body.Close()
 
-func (l *LoadTester) test() {
-    var body []byte
+	body, _ = io.ReadAll(resp.Body)
+	stats.ResponseSize = float64(len(body))
+	Service.DecrementRequestCount()
 
-    start := time.Now();
-    redisDB.IncrementRequestCount();
-
-    resp, err := l.client.Do(l.request);
-    rd := time.Since(start);
-
-    if err != nil {
-        log.Printf("[ERROR]: Request failed: %v", err)
-        l.stats.update(0, 0, err)
-        return
-    }
-
-    defer resp.Body.Close();
-
-    body, err = io.ReadAll(resp.Body)
-    if err != nil {
-        log.Printf("[ERROR]: Failed to read response body: %v", err)
-        l.stats.update(0, 0, err)
-        return
-    }
-
-    rs := len(body)
-    l.stats.update(rs, rd, nil)
-    redisDB.DecrementRequestCount();
+	return stats
 }

@@ -1,6 +1,7 @@
 package Tester
 
 import (
+	"Load-Pulse/Statistics"
 	"bytes"
 	"fmt"
 	"io"
@@ -9,16 +10,14 @@ import (
 	"time"
 )
 
-// Bench is a struct that controls the testers, channel communication
-// and stat aggregation
+// Bench controls the testers, cluster creation, and stat aggregation
 type Bench struct {
 	testers []*LoadTester
-	ch      chan Stats
+	ch      chan *Statistics.Stats
 }
 
 // New returns a Bench tester
 func New(path string) (*Bench, error) {
-
 	var testers []*LoadTester
 
 	conf, err := fromJSON(path)
@@ -38,39 +37,66 @@ func New(path string) (*Bench, error) {
 		if err != nil {
 			return nil, err
 		}
-		// init new Tester with given request
+
 		lt := NewTester(r, req.Connections, conf.Duration*time.Second, req.Rate*time.Millisecond, req.Endpoint)
 		testers = append(testers, lt)
 	}
 
 	b := &Bench{
 		testers: testers,
-		ch:      make(chan Stats, len(testers)),
+		ch:      make(chan *Statistics.Stats, len(testers)),
 	}
 
 	return b, nil
 }
 
-// Run a benchmark test with given config
-// run each tester concurrently and wait for them to finish
+// Run performs the benchmark test with clusters
 func (b *Bench) Run() {
 	var wg sync.WaitGroup
 
-	for _, tester := range b.testers {
-		wg.Add(1)
+	// Define the number of clusters and workers per cluster
+	numClusters := 3          // Fixed number of clusters
+	numWorkersPerCluster := 5 // Fixed number of worker nodes in each cluster
 
-		go func(t *LoadTester) {
-			defer wg.Done()
-			// run loadtester with the specific channel
-			fmt.Printf("Running test on %s with %d connections making a request every %s \n", t.endpoint, t.conns, t.rate.String())
-			t.Run(b.ch)
-		}(tester)
+	// Channel for collecting final stats from all clusters
+	globalStatsChan := make(chan *Statistics.Stats, len(b.testers)*numClusters)
 
+	fmt.Println("Starting load test with clusters...")
+
+	// Iterate over each tester and create clusters
+	for testerIndex, tester := range b.testers {
+		for clusterID := 0; clusterID < numClusters; clusterID++ {
+			wg.Add(1)
+
+			go func(t *LoadTester, clusterID, testerIndex int) {
+				defer wg.Done()
+
+				fmt.Printf("[Cluster-%d, Tester-%d]: Initializing leader and workers...\n", clusterID+1, testerIndex+1)
+
+				// Start the leader node with workers in a cluster
+				StartLeader(clusterID, t, numWorkersPerCluster, &wg, globalStatsChan)
+
+			}(tester, clusterID, testerIndex)
+		}
 	}
+
+	// Wait for all clusters to finish
 	wg.Wait()
-	close(b.ch)
+	close(globalStatsChan)
 
-	for stat := range b.ch {
-		stat.print()
+	// Aggregate and print final stats
+	fmt.Println("\n[GLOBAL]: Aggregating stats from all clusters...");
+
+	finalStats := &Statistics.Stats{}
+	for clusterStats := range globalStatsChan {
+		finalStats.Lock()
+		finalStats.TotalRequests += clusterStats.TotalRequests
+		finalStats.FailedRequests += clusterStats.FailedRequests
+		finalStats.ResponseSize += clusterStats.ResponseSize
+		finalStats.ResponseDur += clusterStats.ResponseDur
+		finalStats.Unlock()
 	}
+
+	fmt.Println("\n[GLOBAL]: Final aggregated stats across all clusters:")
+	finalStats.Print()
 }

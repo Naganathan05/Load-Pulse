@@ -14,6 +14,8 @@ var (
 
 type Config struct {
 	RedisKey string
+	NodeID string
+	RaftAddress string
 }
 
 func LoadEnv() error {
@@ -30,6 +32,8 @@ func GetConfig() *Config {
 
 		configInstance = Config{
 			RedisKey: os.Getenv("REDIS_KEY"),
+			NodeID: os.Getenv("NODE_ID"),
+			RaftAddress: os.Getenv("RAFT_ADDRESS"),
 		}
 	});
 	return &configInstance;

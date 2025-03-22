@@ -6,8 +6,8 @@ import (
     "os/signal"
     "syscall"
 
-    "github.com/Naganathan05/Load-Pulse/Tester"
-    redisDB "github.com/Naganathan05/Load-Pulse/Service"
+    "Load-Pulse/Tester"
+    redisDB "Load-Pulse/Service"
 )
 
 func main() {

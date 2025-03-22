@@ -1,4 +1,4 @@
-package Tester
+package Statistics
 
 import (
 	"fmt"
@@ -6,38 +6,33 @@ import (
 	"sync"
 )
 
-// Stats holds individual statistics from requests
 type Stats struct {
     sync.Mutex
     Endpoint      string
     ResponseSize  float64
     ResponseDur   time.Duration
+    FailedRequests int64
     TotalRequests int64
-    Err           int64
 }
 
-// update the object with incoming data
-func (s *Stats) update(rs int, rd time.Duration, err error) {
+func (s *Stats) Update(rs int, rd time.Duration, err error) {
     s.Lock()
     defer s.Unlock()
 
     s.TotalRequests++
     if err != nil {
-        s.Err++
+        s.FailedRequests++
         return
     }
     s.ResponseSize += float64(rs)
     s.ResponseDur += rd
 }
 
-// change responseSize, responseDur to be averages based on total requests
-// should be called after the tester is done
-// does not count errors towards time or size averages
-func (s *Stats) avg() {
+func (s *Stats) Avg() {
     s.Lock()
     defer s.Unlock()
 
-    completed := s.TotalRequests - s.Err
+    completed := s.TotalRequests - s.FailedRequests
     if completed > 0 {
         s.ResponseDur /= time.Duration(completed)
         s.ResponseSize /= float64(completed)
@@ -47,10 +42,9 @@ func (s *Stats) avg() {
     }
 }
 
-func (s *Stats) print() {
+func (s *Stats) Print() {
 	fmt.Printf("Test completed for endpoint: %s \n", s.Endpoint)
 	fmt.Printf("	Total requests completed: %d \n", s.TotalRequests)
-	// fmt.Printf("	Total errors: %d \n", s.err)
 	fmt.Printf("	Average response size: %f bytes\n", s.ResponseSize)
 	fmt.Printf("	Average response time: %s \n", s.ResponseDur.String())
 }
