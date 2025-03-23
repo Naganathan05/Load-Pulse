@@ -2,23 +2,33 @@ package Service
 
 import (
 	"fmt"
+	"sync"
 	"github.com/streadway/amqp"
 )
 
-var connection *amqp.Connection;
-var channel *amqp.Channel;
+var (
+	connection *amqp.Connection
+	channel    *amqp.Channel
+	once       sync.Once
+)
 
 func ConnectRabbitMQ() error {
 	var err error;
-	connection, err = amqp.Dial("amqp://guest:guest@localhost:5672/");
-	if err != nil {
-		return fmt.Errorf("[ERR]: Failed to Connect to RabbitMQ: %s", err);
-	}
+	once.Do(func() {
+		fmt.Println("[LOG]: Establishing RabbitMQ Connection");
+		connection, err = amqp.Dial("amqp://guest:guest@localhost:5672/");
+		if err != nil {
+			err = fmt.Errorf("[ERR]: Failed to Connect to RabbitMQ: %s", err);
+			return;
+		}
 
-	channel, err = connection.Channel();
-	if err != nil {
-		return fmt.Errorf("[ERR]: Failed to Open a Channel: %s", err);
-	}
+		channel, err = connection.Channel();
+		if err != nil {
+			err = fmt.Errorf("[ERR]: Failed to Open a Channel: %s", err);
+			return;
+		}
+		fmt.Println("[LOG]: RabbitMQ Connection Established.");
+	});
 
 	return nil;
 }
@@ -74,8 +84,10 @@ func ConsumeFromQueue(queueName string) (<-chan amqp.Delivery, error) {
 func CloseRabbitMQ() {
 	if channel != nil {
 		channel.Close();
+		fmt.Println("[LOG]: RabbitMQ Channel Closed.");
 	}
 	if connection != nil {
 		connection.Close();
+		fmt.Println("[LOG]: RabbitMQ Connection Closed.");
 	}
 }
