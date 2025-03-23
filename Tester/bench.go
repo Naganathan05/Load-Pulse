@@ -62,7 +62,7 @@ func (b *Bench) Run() {
 
 	cfg := Config.GetConfig();
 
-	fmt.Println("[LOG]: Starting Load Test for Individual Endpoints By Clustering...");
+	fmt.Println("[LOG]: Starting Load Test for Individual Endpoints By Clustering");
 	globalStatsChan := make(chan *Statistics.Stats, len(b.testers));
 
 	var mu sync.Mutex;
@@ -98,7 +98,7 @@ func (b *Bench) Run() {
 
 			go func(t *LoadTester, clusterID, testerIndex, finalRequests int) {
 
-				fmt.Printf("[Cluster-%d, Tester-%d]: Starting Leader with %d Requests...\n", clusterID + 1, testerIndex + 1, finalRequests);
+				fmt.Printf("[Cluster-%d, Tester-%d]: Starting Leader with %d Requests\n", clusterID + 1, testerIndex + 1, finalRequests);
 				StartLeader(clusterID, t, numWorkersPerCluster, finalRequests, &wg, globalStatsChan, &mu);
 
 			}(tester, clusterID, testerIndex, finalRequests);
@@ -107,7 +107,7 @@ func (b *Bench) Run() {
 
 	wg.Wait();
 	close(globalStatsChan);
-	fmt.Println("\n[GLOBAL]: Aggregating Stats From All Clusters...");
+	fmt.Println("\n[GLOBAL]: Aggregating Stats From All Clusters");
 
 	finalStats := &Statistics.Stats{};
 	for clusterStats := range globalStatsChan {

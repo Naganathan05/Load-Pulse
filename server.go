@@ -21,6 +21,7 @@ func main() {
     signal.Notify(stop, os.Interrupt, syscall.SIGTERM);
 
     redisDB.InitRedisClient();
+    redisDB.ResetRequestCount();
 
     go func() {
         testObj.Run();

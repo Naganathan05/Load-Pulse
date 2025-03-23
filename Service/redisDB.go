@@ -39,6 +39,15 @@ func GetRequestCount() int64 {
 	return currentCount;
 }
 
+func ResetRequestCount() {
+	cfg := config.GetConfig();
+	err := client.Set(ctx, cfg.RedisKey, 0, 0).Err();
+	if err != nil {
+		log.Fatal("[ERR]: Error in Resetting Concurrent Requests Count in Redis !!", err);
+	}
+	fmt.Println("[LOG]: Concurrency Count Reset Done");
+}
+
 func InitRedisClient() {
 	client = redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
@@ -46,5 +55,5 @@ func InitRedisClient() {
 		DB:       0,
 		Protocol: 2,
 	})
-	fmt.Println("[LOG]: Redis Client Initialized...");
+	fmt.Println("[LOG]: Redis Client Initialized");
 }
