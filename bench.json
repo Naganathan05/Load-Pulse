@@ -4,9 +4,9 @@
             "method":"GET",
             "endpoint": "/api/admin/getAllDepartments",
             "data": "",
-            "connections": 10,
+            "connections": 1,
             "rate":1,
-            "concurrencyLimit": 100
+            "concurrencyLimit": 5
         }
     ],
     "host":"http://localhost:8080",

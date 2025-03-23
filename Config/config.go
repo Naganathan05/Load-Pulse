@@ -16,7 +16,7 @@ var (
 type Config struct {
 	RedisKey string
 	ClusterSize int
-	ReuqestSleepTime int
+	RequestSleepTime int
 }
 
 func LoadEnv() error {
@@ -49,7 +49,7 @@ func GetConfig() *Config {
 		configInstance = Config{
 			RedisKey: os.Getenv("REDIS_KEY"),
 			ClusterSize: clusterSize,
-			ReuqestSleepTime: requestSleepTime,
+			RequestSleepTime: requestSleepTime,
 		}
 	});
 	return &configInstance;

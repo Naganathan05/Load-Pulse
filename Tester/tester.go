@@ -2,8 +2,8 @@ package Tester
 
 import (
 	"io"
-	"net/http"
 	"time"
+	"net/http"
 	"Load-Pulse/Service"
 	"Load-Pulse/Statistics"
 	"Load-Pulse/Config"
@@ -38,11 +38,11 @@ func (l *LoadTester) RunTest() *Statistics.Stats {
 	start := time.Now();
 
 	cfg := Config.GetConfig();
-	requestSleepTime := cfg.ReuqestSleepTime;
+	requestSleepTime := cfg.RequestSleepTime;
 
 	currConcurrencyCount := Service.GetRequestCount();
 	for currConcurrencyCount > int64(l.ConcurrencyLimit) {
-		time.Sleep(time.Duration(requestSleepTime));
+		time.Sleep(time.Millisecond * time.Duration(requestSleepTime));
 		currConcurrencyCount = Service.GetRequestCount();
 	}
 

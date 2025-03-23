@@ -12,7 +12,7 @@ type Leader struct {
 	workerCnt int
 }
 
-func StartLeader(id int, tester *LoadTester, workerCnt int, wg *sync.WaitGroup, globalChan chan<- *Statistics.Stats) {
+func StartLeader(id int, tester *LoadTester, workerCnt int, maxRequests int, wg *sync.WaitGroup, globalChan chan<- *Statistics.Stats, mu *sync.Mutex) {
 	defer wg.Done();
 
 	leader := &Leader{
@@ -24,9 +24,9 @@ func StartLeader(id int, tester *LoadTester, workerCnt int, wg *sync.WaitGroup, 
 	leaderChan := make(chan *Statistics.Stats, workerCnt);
 	var workerWg sync.WaitGroup;
 
-	for i := range leader.workerCnt {
+	for i := 0; i < leader.workerCnt; i++ {
 		workerWg.Add(1);
-		go startWorker(i, tester, leaderChan, &workerWg);
+		go startWorker(i, tester, leaderChan, &workerWg, mu, maxRequests);
 	}
 
 	go func() {

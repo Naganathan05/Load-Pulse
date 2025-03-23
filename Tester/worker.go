@@ -4,26 +4,46 @@ import (
 	"fmt"
 	"sync"
 	"time"
+	"errors"
 	"Load-Pulse/Statistics"
 )
 
-func startWorker(id int, tester *LoadTester, leaderCh chan *Statistics.Stats, wg *sync.WaitGroup) {
+func startWorker(id int, tester *LoadTester, leaderCh chan *Statistics.Stats, wg *sync.WaitGroup, mu *sync.Mutex, maxRequests int) {
 	defer wg.Done();
 
-	fmt.Printf("[WORKER-%d]: Starting worker for endpoint: %s\n", id, tester.Endpoint);
-
+	fmt.Printf("[WORKER-%d]: Starting Worker for %s | Max Requests: %d\n", id, tester.Endpoint, maxRequests);
 	ticker := time.NewTicker(tester.Rate);
 	defer ticker.Stop();
+
 	stop := time.After(tester.Dur);
+	requestsMade := 0;
+	stats := &Statistics.Stats{};
 
 	for {
 		select {
 		case <- stop:
 			fmt.Printf("[WORKER-%d]: Stopping Worker\n", id);
+			leaderCh <- stats ; 
 			return;
+
 		case <- ticker.C:
-			stats := tester.RunTest();
-			leaderCh <- stats;
+			mu.Lock();
+			if requestsMade >= maxRequests {
+				mu.Unlock();
+				fmt.Printf("[WORKER-%d]: Max Requests Reached. Stopping...\n", id);
+				leaderCh <- stats;
+				return;
+			}
+
+			requestsMade += 1;
+			mu.Unlock();
+
+			newStats := tester.RunTest();
+			if newStats.FailedRequests > 0 {
+				stats.Update(int(newStats.ResponseSize), newStats.ResponseDur, errors.New("request failed"));
+			} else {
+				stats.Update(int(newStats.ResponseSize), newStats.ResponseDur, nil);
+			}
 		}
 	}
 }
