@@ -20,6 +20,7 @@ type Request struct {
 	Header      string        `json:"header"`
 	Connections int           `json:"connections"`
 	Rate        time.Duration `json:"rate"`
+	ConcurrencyLimit int 	  `json:"concurrencyLimit"`
 }
 
 func fromJSON(path string) (*config, error) {

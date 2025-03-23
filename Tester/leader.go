@@ -13,7 +13,7 @@ type Leader struct {
 }
 
 func StartLeader(id int, tester *LoadTester, workerCnt int, wg *sync.WaitGroup, globalChan chan<- *Statistics.Stats) {
-	defer wg.Done()
+	defer wg.Done();
 
 	leader := &Leader{
 		id:        id,
@@ -21,28 +21,28 @@ func StartLeader(id int, tester *LoadTester, workerCnt int, wg *sync.WaitGroup, 
 		workerCnt: workerCnt,
 	}
 
-	leaderChan := make(chan *Statistics.Stats, workerCnt)
-	var workerWg sync.WaitGroup
+	leaderChan := make(chan *Statistics.Stats, workerCnt);
+	var workerWg sync.WaitGroup;
 
-	for i := 0; i < workerCnt; i++ {
-		workerWg.Add(1)
+	for i := range leader.workerCnt {
+		workerWg.Add(1);
 		go startWorker(i, tester, leaderChan, &workerWg);
 	}
 
 	go func() {
-		workerWg.Wait()
-		close(leaderChan)
-	}()
+		workerWg.Wait();
+		close(leaderChan);
+	}();
 
 	for stats := range leaderChan {
-		leader.stats.Lock()
-		leader.stats.TotalRequests += stats.TotalRequests
-		leader.stats.FailedRequests += stats.FailedRequests
-		leader.stats.ResponseSize += stats.ResponseSize
-		leader.stats.ResponseDur += stats.ResponseDur
-		leader.stats.Unlock()
+		leader.stats.Lock();
+		leader.stats.TotalRequests += stats.TotalRequests;
+		leader.stats.FailedRequests += stats.FailedRequests;
+		leader.stats.ResponseSize += stats.ResponseSize;
+		leader.stats.ResponseDur += stats.ResponseDur;
+		leader.stats.Unlock();
 	}
 
-	fmt.Printf("[LEADER-%d]: Sending final stats to global aggregator\n", id)
-	globalChan <- leader.stats
+	fmt.Printf("[LEADER-%d]: Sending final stats to global aggregator\n", leader.id);
+	globalChan <- leader.stats;
 }

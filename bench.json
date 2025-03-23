@@ -5,7 +5,8 @@
             "endpoint": "/api/admin/getAllDepartments",
             "data": "",
             "connections": 10,
-            "rate":1
+            "rate":1,
+            "concurrencyLimit": 100
         }
     ],
     "host":"http://localhost:8080",

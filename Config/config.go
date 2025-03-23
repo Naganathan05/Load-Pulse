@@ -2,8 +2,9 @@ package Config
 
 import (
 	"os"
+	"log"
+	"strconv"
 	"sync"
-
 	"github.com/joho/godotenv"
 )
 
@@ -14,8 +15,8 @@ var (
 
 type Config struct {
 	RedisKey string
-	NodeID string
-	RaftAddress string
+	ClusterSize int
+	ReuqestSleepTime int
 }
 
 func LoadEnv() error {
@@ -26,14 +27,29 @@ func LoadEnv() error {
 	return nil;
 }
 
+func StringToInt(operand string) int {
+	convertedInt, err := strconv.Atoi(operand);
+	if err != nil {
+		log.Fatal("[ERR]: Invalid CLUSTER_SIZE Value In `.env` File");
+		return -1;
+	}
+	return convertedInt;
+}
+
 func GetConfig() *Config {
 	configInitialized.Do(func () {
 		LoadEnv();
 
+		clusterSizeStr := os.Getenv("CLUSTER_SIZE");
+		clusterSize := StringToInt(clusterSizeStr);
+
+		requestSleepTimeStr := os.Getenv("REQUEST_SLEEP_TIME");
+		requestSleepTime := StringToInt(requestSleepTimeStr);
+
 		configInstance = Config{
 			RedisKey: os.Getenv("REDIS_KEY"),
-			NodeID: os.Getenv("NODE_ID"),
-			RaftAddress: os.Getenv("RAFT_ADDRESS"),
+			ClusterSize: clusterSize,
+			ReuqestSleepTime: requestSleepTime,
 		}
 	});
 	return &configInstance;
