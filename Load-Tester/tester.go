@@ -1,12 +1,13 @@
-package Tester
+package Load_Tester
 
 import (
 	"io"
+	"fmt"
 	"time"
 	"net/http"
-	"Load-Pulse/Service"
-	"Load-Pulse/Statistics"
-	"Load-Pulse/Config"
+	"loadpulse.local/Config"
+	"loadpulse.local/Service"
+	"loadpulse.local/Statistics"
 )
 
 type LoadTester struct {
@@ -33,7 +34,7 @@ func NewTester(r *http.Request, conns int, dur, rate time.Duration, end string, 
 	}
 }
 
-func (l *LoadTester) RunTest() *Statistics.Stats {
+func (l *LoadTester) RunTest(workerID int) *Statistics.Stats {
 	var body []byte;
 	start := time.Now();
 
@@ -42,6 +43,7 @@ func (l *LoadTester) RunTest() *Statistics.Stats {
 
 	currConcurrencyCount := Service.GetRequestCount();
 	for currConcurrencyCount > int64(l.ConcurrencyLimit) {
+		fmt.Printf("[WORKER-ALERT-%d]: Concurrency Limit Reached !! Waiting\n", workerID);
 		time.Sleep(time.Millisecond * time.Duration(requestSleepTime));
 		currConcurrencyCount = Service.GetRequestCount();
 	}

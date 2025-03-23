@@ -1,4 +1,4 @@
-package main
+package Load_Tester
 
 import (
     "log"
@@ -6,13 +6,12 @@ import (
     "os/signal"
     "syscall"
 
-    "Load-Pulse/Tester"
-    redisDB "Load-Pulse/Service"
+    redisDB "loadpulse.local/Service"
 )
 
 func main() {
     arg := os.Args[1];
-    testObj, err := Tester.New(arg);
+    testObj, err := New(arg);
     if err != nil {
         log.Fatal("[ERR]: Invalid File Arguement:", err);
     }

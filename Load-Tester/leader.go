@@ -1,24 +1,28 @@
-package Tester
+package Load_Tester
 
 import (
 	"fmt"
 	"sync"
-	"Load-Pulse/Statistics"
+	"encoding/json"
+	"loadpulse.local/Statistics"
+	"loadpulse.local/Service"
 )
 
 type Leader struct {
 	id        int
 	stats     *Statistics.Stats
 	workerCnt int
+	queueName string
 }
 
-func StartLeader(id int, tester *LoadTester, workerCnt int, maxRequests int, wg *sync.WaitGroup, globalChan chan<- *Statistics.Stats, mu *sync.Mutex) {
+func StartLeader(id int, tester *LoadTester, workerCnt int, maxRequests int, queueName string, wg *sync.WaitGroup, mu *sync.Mutex) {
 	defer wg.Done();
 
 	leader := &Leader{
 		id:        id,
 		stats:     &Statistics.Stats{Endpoint: tester.Endpoint},
 		workerCnt: workerCnt,
+		queueName: queueName,
 	}
 
 	leaderChan := make(chan *Statistics.Stats, workerCnt);
@@ -43,6 +47,10 @@ func StartLeader(id int, tester *LoadTester, workerCnt int, maxRequests int, wg 
 		leader.stats.Unlock();
 	}
 
-	fmt.Printf("[LEADER-%d]: Sending final stats to global aggregator\n", leader.id);
-	globalChan <- leader.stats;
+	statsJSON, _ := json.Marshal(leader.stats);
+	fmt.Printf("[LEADER-%d]: Publishing Stats to Queue: %s\n", leader.id, queueName);
+	err := Service.PublishToQueue(queueName, statsJSON);
+	if err != nil {
+		fmt.Printf("[ERROR]: Failed to publish stats: %v\n", err);
+	}
 }

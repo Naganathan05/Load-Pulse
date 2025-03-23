@@ -6,7 +6,7 @@
             "data": "",
             "connections": 1,
             "rate":1,
-            "concurrencyLimit": 5
+            "concurrencyLimit": 1 
         }
     ],
     "host":"http://localhost:8080",

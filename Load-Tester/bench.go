@@ -1,4 +1,4 @@
-package Tester
+package Load_Tester
 
 import (
 	"io"
@@ -8,8 +8,8 @@ import (
 	"bytes"
 	"net/http"
 
-	"Load-Pulse/Statistics"
-	"Load-Pulse/Config"
+	"loadpulse.local/Statistics"
+	"loadpulse.local/Config"
 )
 
 type Bench struct {
@@ -27,7 +27,7 @@ func min(a int, b int) int {
 func New(path string) (*Bench, error) {
 	var testers []*LoadTester;
 
-	conf, err := fromJSON(path);
+	conf, err := FromJSON(path);
 	if err != nil {
 		return nil, err;
 	}
@@ -67,12 +67,15 @@ func (b *Bench) Run() {
 
 	var mu sync.Mutex;
 	for testerIndex, tester := range b.testers {
-		totalRequests := tester.Conns * int(tester.Rate.Milliseconds()) * int(tester.Dur.Seconds());
+		totalRequests := tester.Conns * int(tester.Dur.Seconds()) / int(tester.Rate.Seconds());
 		numWorkersPerCluster := min(cfg.ClusterSize, totalRequests);
 		numClusters := totalRequests / numWorkersPerCluster;
 
 		requestsPerWorker := totalRequests / numWorkersPerCluster;
 		remainingRequests := totalRequests % numWorkersPerCluster;
+
+		baseQueueName := cfg.BaseQueueName;
+		queueName := fmt.Sprintf("%s-%d", baseQueueName, testerIndex + 1);
 
 		/* ------------------------   DEBUGGING  --------------------------------
 			fmt.Println("Total Requests:", totalRequests);
@@ -99,7 +102,7 @@ func (b *Bench) Run() {
 			go func(t *LoadTester, clusterID, testerIndex, finalRequests int) {
 
 				fmt.Printf("[Cluster-%d, Tester-%d]: Starting Leader with %d Requests\n", clusterID + 1, testerIndex + 1, finalRequests);
-				StartLeader(clusterID, t, numWorkersPerCluster, finalRequests, &wg, globalStatsChan, &mu);
+				StartLeader(clusterID, t, numWorkersPerCluster, finalRequests, queueName, &wg, &mu);
 
 			}(tester, clusterID, testerIndex, finalRequests);
 		}

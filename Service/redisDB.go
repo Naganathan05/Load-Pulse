@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	config "Load-Pulse/Config"
+	config "loadpulse.local/Config"
 	redis "github.com/redis/go-redis/v9"
 )
 

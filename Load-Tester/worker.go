@@ -1,11 +1,11 @@
-package Tester
+package Load_Tester
 
 import (
 	"fmt"
 	"sync"
 	"time"
 	"errors"
-	"Load-Pulse/Statistics"
+	"loadpulse.local/Statistics"
 )
 
 func startWorker(id int, tester *LoadTester, leaderCh chan *Statistics.Stats, wg *sync.WaitGroup, mu *sync.Mutex, maxRequests int) {
@@ -38,7 +38,7 @@ func startWorker(id int, tester *LoadTester, leaderCh chan *Statistics.Stats, wg
 			requestsMade += 1;
 			mu.Unlock();
 
-			newStats := tester.RunTest();
+			newStats := tester.RunTest(id);
 			if newStats.FailedRequests > 0 {
 				stats.Update(int(newStats.ResponseSize), newStats.ResponseDur, errors.New("request failed"));
 			} else {

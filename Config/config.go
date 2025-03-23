@@ -16,6 +16,7 @@ var (
 type Config struct {
 	RedisKey string
 	ClusterSize int
+	BaseQueueName string
 	RequestSleepTime int
 }
 
@@ -30,7 +31,7 @@ func LoadEnv() error {
 func StringToInt(operand string) int {
 	convertedInt, err := strconv.Atoi(operand);
 	if err != nil {
-		log.Fatal("[ERR]: Invalid CLUSTER_SIZE Value In `.env` File");
+		log.Fatal("[ERR]: Invalid Integer Value In `.env` File");
 		return -1;
 	}
 	return convertedInt;
@@ -49,6 +50,7 @@ func GetConfig() *Config {
 		configInstance = Config{
 			RedisKey: os.Getenv("REDIS_KEY"),
 			ClusterSize: clusterSize,
+			BaseQueueName: os.Getenv("BASE_QUEUE_NAME"),
 			RequestSleepTime: requestSleepTime,
 		}
 	});

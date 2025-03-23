@@ -1,4 +1,4 @@
-package Tester
+package Load_Tester
 
 import (
 	"encoding/json"
@@ -23,7 +23,7 @@ type Request struct {
 	ConcurrencyLimit int 	  `json:"concurrencyLimit"`
 }
 
-func fromJSON(path string) (*config, error) {
+func FromJSON(path string) (*config, error) {
 	f, err := os.Open(path);
 	if err != nil {
 		return nil, err;
