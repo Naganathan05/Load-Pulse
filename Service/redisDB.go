@@ -1,11 +1,11 @@
 package Service
 
 import (
-	"context"
 	"fmt"
 	"log"
+	"context"
 
-	config "loadpulse.local/Config"
+	config "Load-Pulse/Config"
 	redis "github.com/redis/go-redis/v9"
 )
 

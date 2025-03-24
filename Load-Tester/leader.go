@@ -1,11 +1,12 @@
-package Load_Tester
+package main
 
 import (
 	"fmt"
 	"sync"
 	"encoding/json"
-	"loadpulse.local/Statistics"
-	"loadpulse.local/Service"
+
+	"Load-Pulse/Service"
+	"Load-Pulse/Statistics"
 )
 
 type Leader struct {

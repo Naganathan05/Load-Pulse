@@ -1,14 +1,13 @@
-module loadpulse.local/Aggregator
+module Load-Pulse/Aggregator
 
 go 1.22.5
 
 require (
-	loadpulse.local/Load_Tester v0.0.0 // Add this line
-	loadpulse.local/Service v0.0.0
-	loadpulse.local/Statistics v0.0.0
+	Load-Pulse/Service v0.0.0
+	Load-Pulse/Statistics v0.0.0
 )
 
-require loadpulse.local/Config v0.0.0
+require Load-Pulse/Config v0.0.0
 
 require (
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
@@ -18,10 +17,10 @@ require (
 	github.com/streadway/amqp v1.1.0 // indirect
 )
 
-replace loadpulse.local/Config => ../Config
+replace Load-Pulse/Config => ../Config
 
-replace loadpulse.local/Service => ../Service
+replace Load-Pulse/Service => ../Service
 
-replace loadpulse.local/Statistics => ../Statistics
+replace Load-Pulse/Statistics => ../Statistics
 
-replace loadpulse.local/Load_Tester => ../Load-Tester // Add this line
+replace Load-Pulse/Load_Tester => ../Load-Tester // Add this line

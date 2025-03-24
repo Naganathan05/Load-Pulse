@@ -1,4 +1,4 @@
-module loadpulse.local/Config
+module Load-Pulse/Config
 
 go 1.22.5
 

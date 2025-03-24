@@ -1,13 +1,13 @@
-package Load_Tester
+package Service
 
 import (
-	"encoding/json"
 	"io"
 	"os"
 	"time"
+	"encoding/json"
 )
 
-type config struct {
+type Config struct {
 	Req      []Request     `json:"requests"`
 	Host     string        `json:"host"`
 	Duration time.Duration `json:"duration"`
@@ -23,7 +23,7 @@ type Request struct {
 	ConcurrencyLimit int 	  `json:"concurrencyLimit"`
 }
 
-func FromJSON(path string) (*config, error) {
+func FromJSON(path string) (*Config, error) {
 	f, err := os.Open(path);
 	if err != nil {
 		return nil, err;
@@ -35,7 +35,7 @@ func FromJSON(path string) (*config, error) {
 		return nil, err;
 	}
 
-	var conf config;
+	var conf Config;
 
 	err = json.Unmarshal(data, &conf);
 	if err != nil {

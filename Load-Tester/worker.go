@@ -1,11 +1,12 @@
-package Load_Tester
+package main
 
 import (
 	"fmt"
 	"sync"
 	"time"
 	"errors"
-	"loadpulse.local/Statistics"
+
+	"Load-Pulse/Statistics"
 )
 
 func startWorker(id int, tester *LoadTester, leaderCh chan *Statistics.Stats, wg *sync.WaitGroup, mu *sync.Mutex, maxRequests int) {
@@ -23,7 +24,7 @@ func startWorker(id int, tester *LoadTester, leaderCh chan *Statistics.Stats, wg
 		select {
 		case <- stop:
 			fmt.Printf("[WORKER-%d]: Stopping Worker\n", id);
-			leaderCh <- stats ; 
+			leaderCh <- stats;
 			return;
 
 		case <- ticker.C:

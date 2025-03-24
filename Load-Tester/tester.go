@@ -1,35 +1,36 @@
-package Load_Tester
+package main
 
 import (
 	"io"
 	"fmt"
 	"time"
 	"net/http"
-	"loadpulse.local/Config"
-	"loadpulse.local/Service"
-	"loadpulse.local/Statistics"
+	
+	"Load-Pulse/Config"
+	"Load-Pulse/Service"
+	"Load-Pulse/Statistics"
 )
 
 type LoadTester struct {
-	Endpoint string
-	Conns    int
-	Request  *http.Request
-	Client   *http.Client
-	Stats    *Statistics.Stats
-	Dur      time.Duration
-	Rate     time.Duration
+	Endpoint         string
+	Conns            int
+	Request          *http.Request
+	Client           *http.Client
+	Stats            *Statistics.Stats
+	Dur              time.Duration
+	Rate             time.Duration
 	ConcurrencyLimit int
 }
 
 func NewTester(r *http.Request, conns int, dur, rate time.Duration, end string, concurrencyLimit int) *LoadTester {
 	return &LoadTester{
-		Endpoint: end,
-		Request:  r,
-		Client:   &http.Client{},
-		Conns:    conns,
-		Dur:      dur,
-		Rate:     rate,
-		Stats:    &Statistics.Stats{Endpoint: end},
+		Endpoint:         end,
+		Request:          r,
+		Client:           &http.Client{},
+		Conns:            conns,
+		Dur:              dur,
+		Rate:             rate,
+		Stats:            &Statistics.Stats{Endpoint: end},
 		ConcurrencyLimit: concurrencyLimit,
 	}
 }
@@ -54,9 +55,9 @@ func (l *LoadTester) RunTest(workerID int) *Statistics.Stats {
 	rd := time.Since(start);
 
 	stats := &Statistics.Stats{
-		Endpoint:      l.Endpoint,
-		ResponseDur:   rd,
-		TotalRequests: 1,
+		Endpoint:       l.Endpoint,
+		ResponseDur:    rd,
+		TotalRequests:  1,
 		FailedRequests: 0,
 	}
 

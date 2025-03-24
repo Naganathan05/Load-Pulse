@@ -3,8 +3,8 @@ package Config
 import (
 	"os"
 	"log"
-	"strconv"
 	"sync"
+	"strconv"
 	"github.com/joho/godotenv"
 )
 

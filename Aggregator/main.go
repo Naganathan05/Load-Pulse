@@ -1,20 +1,19 @@
-package Aggregator
+package main
 
 import (
 	"fmt"
 	"os"
 	"sync"
 
-	"loadpulse.local/Config"
-	"loadpulse.local/Service"
-	"loadpulse.local/Load_Tester"
+	"Load-Pulse/Config"
+	"Load-Pulse/Service"
 )
 
 func min(a int, b int) int {
 	if a < b {
-		return a;
+		return a
 	}
-	return b;
+	return b
 }
 
 func main() {
@@ -23,7 +22,7 @@ func main() {
 
 	arg := os.Args[1];
 
-	config, err := Load_Tester.FromJSON(arg);
+	config, err := Service.FromJSON(arg);
 	if err != nil {
 		fmt.Printf("[ERROR]: Failed to load config: %v\n", err);
 		os.Exit(1);
@@ -32,7 +31,7 @@ func main() {
 	fmt.Println("[AGGREGATOR]: Starting Aggregator Service...");
 
 	var wg sync.WaitGroup;
-	cfg := Config.GetConfig();
+	cfg := Config.GetConfig();;
 
 	for testerIndex, req := range config.Req {
 		queueName := fmt.Sprintf("%s-%d", cfg.BaseQueueName, testerIndex + 1);
@@ -42,7 +41,7 @@ func main() {
 		numClusters := totalRequests / numWorkersPerCluster;
 
 		fmt.Printf("[AGGREGATOR]: Listening on Queue %s With %d Clusters\n", queueName, numClusters);
-		
+
 		wg.Add(1);
 		go func(qName string, clusters int) {
 			defer wg.Done();

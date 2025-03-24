@@ -1,11 +1,11 @@
-module loadpulse.local/Load-Tester
+module Load-Pulse/Load-Tester
 
 go 1.22.5
 
 require (
-	loadpulse.local/Config v0.0.0
-	loadpulse.local/Service v0.0.0
-	loadpulse.local/Statistics v0.0.0
+	Load-Pulse/Config v0.0.0
+	Load-Pulse/Service v0.0.0
+	Load-Pulse/Statistics v0.0.0
 )
 
 require (
@@ -16,10 +16,10 @@ require (
 	github.com/streadway/amqp v1.1.0 // indirect
 )
 
-replace loadpulse.local/Aggregator => ../Aggregator
+replace Load-Pulse/Aggregator => ../Aggregator
 
-replace loadpulse.local/Service => ../Service
+replace Load-Pulse/Service => ../Service
 
-replace loadpulse.local/Config => ../Config
+replace Load-Pulse/Config => ../Config
 
-replace loadpulse.local/Statistics => ../Statistics
+replace Load-Pulse/Statistics => ../Statistics

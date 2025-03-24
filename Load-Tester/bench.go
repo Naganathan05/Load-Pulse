@@ -1,4 +1,4 @@
-package Load_Tester
+package main
 
 import (
 	"io"
@@ -8,8 +8,9 @@ import (
 	"bytes"
 	"net/http"
 
-	"loadpulse.local/Statistics"
-	"loadpulse.local/Config"
+	"Load-Pulse/Config"
+	"Load-Pulse/Service"
+	"Load-Pulse/Statistics"
 )
 
 type Bench struct {
@@ -27,7 +28,7 @@ func min(a int, b int) int {
 func New(path string) (*Bench, error) {
 	var testers []*LoadTester;
 
-	conf, err := FromJSON(path);
+	conf, err := Service.FromJSON(path);
 	if err != nil {
 		return nil, err;
 	}
@@ -54,7 +55,7 @@ func New(path string) (*Bench, error) {
 		ch:      make(chan *Statistics.Stats, len(testers)),
 	}
 
-	return b, nil;
+	return b, nil
 }
 
 func (b *Bench) Run() {
@@ -63,7 +64,6 @@ func (b *Bench) Run() {
 	cfg := Config.GetConfig();
 
 	fmt.Println("[LOG]: Starting Load Test for Individual Endpoints By Clustering");
-	globalStatsChan := make(chan *Statistics.Stats, len(b.testers));
 
 	var mu sync.Mutex;
 	for testerIndex, tester := range b.testers {
@@ -89,7 +89,7 @@ func (b *Bench) Run() {
 		---------------------------------------------------------------------------*/
 
 		fmt.Printf("[LOG]: Tester %d → Total Requests: %d | Workers: %d | Req/Worker: %d | Remaining: %d\n",
-			testerIndex + 1, totalRequests, numWorkersPerCluster, requestsPerWorker, remainingRequests);
+			testerIndex+1, totalRequests, numWorkersPerCluster, requestsPerWorker, remainingRequests);
 
 		for clusterID := 0; clusterID < numClusters; clusterID++ {
 			wg.Add(1);
@@ -101,7 +101,7 @@ func (b *Bench) Run() {
 
 			go func(t *LoadTester, clusterID, testerIndex, finalRequests int) {
 
-				fmt.Printf("[Cluster-%d, Tester-%d]: Starting Leader with %d Requests\n", clusterID + 1, testerIndex + 1, finalRequests);
+				fmt.Printf("[Cluster-%d, Tester-%d]: Starting Leader with %d Requests\n", clusterID+1, testerIndex+1, finalRequests);
 				StartLeader(clusterID, t, numWorkersPerCluster, finalRequests, queueName, &wg, &mu);
 
 			}(tester, clusterID, testerIndex, finalRequests);
@@ -109,19 +109,4 @@ func (b *Bench) Run() {
 	}
 
 	wg.Wait();
-	close(globalStatsChan);
-	fmt.Println("\n[GLOBAL]: Aggregating Stats From All Clusters");
-
-	finalStats := &Statistics.Stats{};
-	for clusterStats := range globalStatsChan {
-		finalStats.Lock();
-		finalStats.TotalRequests += clusterStats.TotalRequests;
-		finalStats.FailedRequests += clusterStats.FailedRequests;
-		finalStats.ResponseSize += clusterStats.ResponseSize;
-		finalStats.ResponseDur += clusterStats.ResponseDur;
-		finalStats.Unlock();
-	}
-
-	fmt.Println("\n[GLOBAL]: Final aggregated stats across all clusters:");
-	finalStats.Print();
 }
