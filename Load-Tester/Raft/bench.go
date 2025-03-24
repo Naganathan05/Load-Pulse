@@ -1,4 +1,4 @@
-package main
+package Raft
 
 import (
 	"io"
@@ -25,7 +25,7 @@ func min(a int, b int) int {
 	return b;
 }
 
-func New(path string) (*Bench, error) {
+func NewLoadTester(path string) (*Bench, error) {
 	var testers []*LoadTester;
 
 	conf, err := Service.FromJSON(path);
@@ -67,7 +67,10 @@ func (b *Bench) Run() {
 
 	var mu sync.Mutex;
 	for testerIndex, tester := range b.testers {
-		totalRequests := tester.Conns * int(tester.Dur.Seconds()) / int(tester.Rate.Seconds());
+		fmt.Println("Total Conns:", tester.Conns);
+		fmt.Println("Duration: ", int(tester.Dur.Seconds()));
+		fmt.Println("Rate: ", int(tester.Rate.Seconds()));
+		totalRequests := tester.Conns * int(tester.Dur.Seconds()) / int(tester.Rate.Milliseconds());
 		numWorkersPerCluster := min(cfg.ClusterSize, totalRequests);
 		numClusters := totalRequests / numWorkersPerCluster;
 
@@ -77,7 +80,7 @@ func (b *Bench) Run() {
 		baseQueueName := cfg.BaseQueueName;
 		queueName := fmt.Sprintf("%s-%d", baseQueueName, testerIndex + 1);
 
-		/* ------------------------   DEBUGGING  --------------------------------
+		// ------------------------   DEBUGGING  --------------------------------
 			fmt.Println("Total Requests:", totalRequests);
 		 	fmt.Println("Number of Clusters:", numClusters);
 		 	fmt.Println("Number of Workers Per Cluster:", numWorkersPerCluster);
@@ -86,7 +89,7 @@ func (b *Bench) Run() {
 		 	fmt.Println("Number of Connections Required:", tester.Conns);
 		 	fmt.Println("Concurrency Limit:", tester.ConcurrencyLimit);
 		 	fmt.Println("Request Rate:", int(tester.Rate.Milliseconds()));
-		---------------------------------------------------------------------------*/
+		// ---------------------------------------------------------------------------*/
 
 		fmt.Printf("[LOG]: Tester %d → Total Requests: %d | Workers: %d | Req/Worker: %d | Remaining: %d\n",
 			testerIndex+1, totalRequests, numWorkersPerCluster, requestsPerWorker, remainingRequests);

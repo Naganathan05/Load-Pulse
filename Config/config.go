@@ -1,10 +1,11 @@
 package Config
 
 import (
-	"os"
 	"log"
-	"sync"
+	"os"
 	"strconv"
+	"sync"
+
 	"github.com/joho/godotenv"
 )
 
@@ -21,31 +22,38 @@ type Config struct {
 }
 
 func LoadEnv() error {
-	err := godotenv.Load(".env");
+	err := godotenv.Load("../.env");
 	if err != nil {
 		return err;
 	}
 	return nil;
 }
 
-func StringToInt(operand string) int {
+func StringToInt(operand string) (int, error) {
 	convertedInt, err := strconv.Atoi(operand);
 	if err != nil {
-		log.Fatal("[ERR]: Invalid Integer Value In `.env` File");
-		return -1;
+		return -1, err;
 	}
-	return convertedInt;
+	return convertedInt, nil;
 }
 
 func GetConfig() *Config {
 	configInitialized.Do(func () {
 		LoadEnv();
 
+		var clusterSize, requestSleepTime int;
+		var err error;
 		clusterSizeStr := os.Getenv("CLUSTER_SIZE");
-		clusterSize := StringToInt(clusterSizeStr);
+		clusterSize, err = StringToInt(clusterSizeStr);
+		if err != nil {
+			log.Fatalf("[ERROR]: Invalid Cluster Size !!");
+		}
 
 		requestSleepTimeStr := os.Getenv("REQUEST_SLEEP_TIME");
-		requestSleepTime := StringToInt(requestSleepTimeStr);
+		requestSleepTime, err = StringToInt(requestSleepTimeStr);
+		if err != nil {
+			log.Fatalf("[ERROR]: Invalid Request Sleep Time !!");
+		}
 
 		configInstance = Config{
 			RedisKey: os.Getenv("REDIS_KEY"),

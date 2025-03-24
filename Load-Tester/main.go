@@ -2,16 +2,19 @@ package main
 
 import (
 	"os"
+	"fmt"
 	"log"
 	"syscall"
 	"os/signal"
 
 	"Load-Pulse/Service"
+	"Load-Pulse/Load-Tester/Raft"
 )
 
 func main() {
 	arg := os.Args[1];
-	testObj, err := New(arg);
+	fmt.Println(arg);
+	testObj, err := Raft.NewLoadTester(arg);
 	if err != nil {
 		log.Fatal("[ERR]: Invalid File Arguement:", err);
 	}

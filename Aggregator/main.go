@@ -36,7 +36,7 @@ func main() {
 	for testerIndex, req := range config.Req {
 		queueName := fmt.Sprintf("%s-%d", cfg.BaseQueueName, testerIndex + 1);
 
-		totalRequests := req.Connections * int(config.Duration.Seconds()) / int(req.Rate.Seconds());
+		totalRequests := req.Connections * int(config.Duration.Seconds()) / int(req.Rate.Milliseconds());
 		numWorkersPerCluster := min(cfg.ClusterSize, totalRequests);
 		numClusters := totalRequests / numWorkersPerCluster;
 

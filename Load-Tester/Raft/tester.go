@@ -1,4 +1,4 @@
-package main
+package Raft
 
 import (
 	"io"
@@ -44,7 +44,7 @@ func (l *LoadTester) RunTest(workerID int) *Statistics.Stats {
 
 	currConcurrencyCount := Service.GetRequestCount();
 	for currConcurrencyCount > int64(l.ConcurrencyLimit) {
-		fmt.Printf("[WORKER-ALERT-%d]: Concurrency Limit Reached !! Waiting\n", workerID);
+		fmt.Printf("[WORKER-ALERT-%d]: Concurrency Count: %d => Limit Reached !! Waiting\n", workerID, currConcurrencyCount);
 		time.Sleep(time.Millisecond * time.Duration(requestSleepTime));
 		currConcurrencyCount = Service.GetRequestCount();
 	}

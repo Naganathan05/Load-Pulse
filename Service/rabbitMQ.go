@@ -2,7 +2,9 @@ package Service
 
 import (
 	"fmt"
+	"log"
 	"sync"
+
 	"github.com/streadway/amqp"
 )
 
@@ -12,25 +14,21 @@ var (
 	once       sync.Once
 )
 
-func ConnectRabbitMQ() error {
+func ConnectRabbitMQ() {
 	var err error;
 	once.Do(func() {
 		fmt.Println("[LOG]: Establishing RabbitMQ Connection");
 		connection, err = amqp.Dial("amqp://guest:guest@localhost:5672/");
 		if err != nil {
-			err = fmt.Errorf("[ERR]: Failed to Connect to RabbitMQ: %s", err);
-			return;
+			log.Fatalf("[ERR]: Failed to Connect to RabbitMQ: %s", err);
 		}
 
 		channel, err = connection.Channel();
 		if err != nil {
-			err = fmt.Errorf("[ERR]: Failed to Open a Channel: %s", err);
-			return;
+			log.Fatalf("[ERR]: Failed to Open a Channel: %s", err);
 		}
 		fmt.Println("[LOG]: RabbitMQ Connection Established.");
 	});
-
-	return nil;
 }
 
 func CreateQueue(queueName string) error {
