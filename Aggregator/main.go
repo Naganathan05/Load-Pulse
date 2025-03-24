@@ -11,9 +11,9 @@ import (
 
 func min(a int, b int) int {
 	if a < b {
-		return a
+		return a;
 	}
-	return b
+	return b;
 }
 
 func main() {
@@ -31,7 +31,7 @@ func main() {
 	fmt.Println("[AGGREGATOR]: Starting Aggregator Service...");
 
 	var wg sync.WaitGroup;
-	cfg := Config.GetConfig();;
+	cfg := Config.GetConfig();
 
 	for testerIndex, req := range config.Req {
 		queueName := fmt.Sprintf("%s-%d", cfg.BaseQueueName, testerIndex + 1);

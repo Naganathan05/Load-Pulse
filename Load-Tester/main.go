@@ -23,12 +23,12 @@ func main() {
 	Service.ResetRequestCount();
 
 	Service.ConnectRabbitMQ();
-	defer Service.CloseRabbitMQ()
+	defer Service.CloseRabbitMQ();
 
 	go func() {
 		testObj.Run();
-	}()
+	}();
 
-	<- stop
+	<- stop;
 	log.Println("\n[LOG]: Gracefully Shutting Down Test Server...");
 }

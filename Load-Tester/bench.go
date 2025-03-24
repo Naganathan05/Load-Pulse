@@ -55,7 +55,7 @@ func New(path string) (*Bench, error) {
 		ch:      make(chan *Statistics.Stats, len(testers)),
 	}
 
-	return b, nil
+	return b, nil;
 }
 
 func (b *Bench) Run() {
