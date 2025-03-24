@@ -2,7 +2,6 @@ package main
 
 import (
 	"os"
-	"fmt"
 	"log"
 	"syscall"
 	"os/signal"
@@ -13,8 +12,7 @@ import (
 
 func main() {
 	arg := os.Args[1];
-	fmt.Println(arg);
-	testObj, err := Raft.NewLoadTester(arg);
+	testObj, err := Service.NewLoadTester(arg);
 	if err != nil {
 		log.Fatal("[ERR]: Invalid File Arguement:", err);
 	}
@@ -29,7 +27,7 @@ func main() {
 	defer Service.CloseRabbitMQ();
 
 	go func() {
-		testObj.Run();
+		Raft.Run(testObj);
 	}();
 
 	<- stop;

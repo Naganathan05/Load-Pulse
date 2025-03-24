@@ -1,15 +1,16 @@
 package Raft
 
 import (
+	"errors"
 	"fmt"
 	"sync"
 	"time"
-	"errors"
 
+	"Load-Pulse/Service"
 	"Load-Pulse/Statistics"
 )
 
-func startWorker(id int, tester *LoadTester, leaderCh chan *Statistics.Stats, wg *sync.WaitGroup, mu *sync.Mutex, maxRequests int) {
+func startWorker(id int, tester *Service.LoadTester, leaderCh chan *Statistics.Stats, wg *sync.WaitGroup, mu *sync.Mutex, maxRequests int) {
 	defer wg.Done();
 
 	fmt.Printf("[WORKER-%d]: Starting Worker for %s | Max Requests: %d\n", id, tester.Endpoint, maxRequests);
@@ -39,7 +40,7 @@ func startWorker(id int, tester *LoadTester, leaderCh chan *Statistics.Stats, wg
 			requestsMade += 1;
 			mu.Unlock();
 
-			newStats := tester.RunTest(id);
+			newStats := RunTest(id, tester);
 			if newStats.FailedRequests > 0 {
 				stats.Update(int(newStats.ResponseSize), newStats.ResponseDur, errors.New("request failed"));
 			} else {

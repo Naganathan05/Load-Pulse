@@ -1,9 +1,10 @@
 package Raft
 
 import (
-	"fmt"
-	"sync"
 	"encoding/json"
+	"fmt"
+	"log"
+	"sync"
 
 	"Load-Pulse/Service"
 	"Load-Pulse/Statistics"
@@ -16,7 +17,7 @@ type Leader struct {
 	queueName string
 }
 
-func StartLeader(id int, tester *LoadTester, workerCnt int, maxRequests int, queueName string, wg *sync.WaitGroup, mu *sync.Mutex) {
+func StartLeader(id int, tester *Service.LoadTester, workerCnt int, maxRequests int, queueName string, wg *sync.WaitGroup, mu *sync.Mutex) {
 	defer wg.Done();
 
 	leader := &Leader{
@@ -50,8 +51,19 @@ func StartLeader(id int, tester *LoadTester, workerCnt int, maxRequests int, que
 
 	statsJSON, _ := json.Marshal(leader.stats);
 	fmt.Printf("[LEADER-%d]: Publishing Stats to Queue: %s\n", leader.id, queueName);
-	err := Service.PublishToQueue(queueName, statsJSON);
+
+	err := Service.DeleteQueue(queueName);
+	if err != nil {	
+		log.Fatalf("[ERROR]: Failed to Delete Queue: %v\n", err);
+	}
+	
+	err = Service.CreateQueue(queueName);
 	if err != nil {
-		fmt.Printf("[ERROR]: Failed to publish stats: %v\n", err);
+		log.Fatalf("[ERROR]: Failed to Create Queue: %v\n", err);
+	}
+
+	err = Service.PublishToQueue(queueName, statsJSON);
+	if err != nil {
+		log.Fatalf("[ERROR]: Failed to Publish Stats: %v\n", err);
 	}
 }

@@ -1,64 +1,54 @@
 package Raft
 
 import (
-	"io"
 	"fmt"
 	"sync"
-	"time"
-	"bytes"
-	"net/http"
 
 	"Load-Pulse/Config"
 	"Load-Pulse/Service"
-	"Load-Pulse/Statistics"
 )
 
-type Bench struct {
-	testers []*LoadTester
-	ch      chan *Statistics.Stats
-}
+// func min(a int, b int) int {
+// 	if a < b {
+// 		return a;
+// 	}
+// 	return b;
+// }
 
-func min(a int, b int) int {
-	if a < b {
-		return a;
-	}
-	return b;
-}
+// func NewLoadTester(path string) (*Bench, error) {
+// 	var testers []*LoadTester;
 
-func NewLoadTester(path string) (*Bench, error) {
-	var testers []*LoadTester;
+// 	conf, err := Service.FromJSON(path);
+// 	if err != nil {
+// 		return nil, err;
+// 	}
 
-	conf, err := Service.FromJSON(path);
-	if err != nil {
-		return nil, err;
-	}
+// 	for _, req := range conf.Req {
+// 		var buf io.Reader;
+// 		addr := conf.Host + req.Endpoint;
 
-	for _, req := range conf.Req {
-		var buf io.Reader;
-		addr := conf.Host + req.Endpoint;
+// 		if req.Data != "" {
+// 			buf = bytes.NewBufferString(req.Data);
+// 		}
 
-		if req.Data != "" {
-			buf = bytes.NewBufferString(req.Data);
-		}
+// 		r, err := http.NewRequest(req.Method, addr, buf);
+// 		if err != nil {
+// 			return nil, err;
+// 		}
 
-		r, err := http.NewRequest(req.Method, addr, buf);
-		if err != nil {
-			return nil, err;
-		}
+// 		lt := NewTester(r, req.Connections, conf.Duration*time.Second, req.Rate*time.Millisecond, req.Endpoint, req.ConcurrencyLimit);
+// 		testers = append(testers, lt);
+// 	}
 
-		lt := NewTester(r, req.Connections, conf.Duration*time.Second, req.Rate*time.Millisecond, req.Endpoint, req.ConcurrencyLimit);
-		testers = append(testers, lt);
-	}
+// 	b := &Bench{
+// 		testers: testers,
+// 		ch:      make(chan *Statistics.Stats, len(testers)),
+// 	}
 
-	b := &Bench{
-		testers: testers,
-		ch:      make(chan *Statistics.Stats, len(testers)),
-	}
+// 	return b, nil;
+// }
 
-	return b, nil;
-}
-
-func (b *Bench) Run() {
+func Run(b *Service.Bench) {
 	var wg sync.WaitGroup;
 
 	cfg := Config.GetConfig();
@@ -66,12 +56,12 @@ func (b *Bench) Run() {
 	fmt.Println("[LOG]: Starting Load Test for Individual Endpoints By Clustering");
 
 	var mu sync.Mutex;
-	for testerIndex, tester := range b.testers {
+	for testerIndex, tester := range b.Testers {
 		fmt.Println("Total Conns:", tester.Conns);
 		fmt.Println("Duration: ", int(tester.Dur.Seconds()));
-		fmt.Println("Rate: ", int(tester.Rate.Seconds()));
+		fmt.Println("Rate: ", int(tester.Rate.Milliseconds()));
 		totalRequests := tester.Conns * int(tester.Dur.Seconds()) / int(tester.Rate.Milliseconds());
-		numWorkersPerCluster := min(cfg.ClusterSize, totalRequests);
+		numWorkersPerCluster := Service.Min(cfg.ClusterSize, totalRequests);
 		numClusters := totalRequests / numWorkersPerCluster;
 
 		requestsPerWorker := totalRequests / numWorkersPerCluster;
@@ -102,9 +92,9 @@ func (b *Bench) Run() {
 				finalRequests += remainingRequests;
 			}
 
-			go func(t *LoadTester, clusterID, testerIndex, finalRequests int) {
+			go func(t *Service.LoadTester, clusterID, testerIndex, finalRequests int) {
 
-				fmt.Printf("[Cluster-%d, Tester-%d]: Starting Leader with %d Requests\n", clusterID+1, testerIndex+1, finalRequests);
+				fmt.Printf("[Cluster-%d, Tester-%d]: Starting Leader with %d Requests\n", clusterID + 1, testerIndex + 1, finalRequests);
 				StartLeader(clusterID, t, numWorkersPerCluster, finalRequests, queueName, &wg, &mu);
 
 			}(tester, clusterID, testerIndex, finalRequests);

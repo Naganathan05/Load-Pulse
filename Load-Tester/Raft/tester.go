@@ -4,38 +4,37 @@ import (
 	"io"
 	"fmt"
 	"time"
-	"net/http"
 	
 	"Load-Pulse/Config"
 	"Load-Pulse/Service"
 	"Load-Pulse/Statistics"
 )
 
-type LoadTester struct {
-	Endpoint         string
-	Conns            int
-	Request          *http.Request
-	Client           *http.Client
-	Stats            *Statistics.Stats
-	Dur              time.Duration
-	Rate             time.Duration
-	ConcurrencyLimit int
-}
+// type LoadTester struct {
+// 	Endpoint         string
+// 	Conns            int
+// 	Request          *http.Request
+// 	Client           *http.Client
+// 	Stats            *Statistics.Stats
+// 	Dur              time.Duration
+// 	Rate             time.Duration
+// 	ConcurrencyLimit int
+// }
 
-func NewTester(r *http.Request, conns int, dur, rate time.Duration, end string, concurrencyLimit int) *LoadTester {
-	return &LoadTester{
-		Endpoint:         end,
-		Request:          r,
-		Client:           &http.Client{},
-		Conns:            conns,
-		Dur:              dur,
-		Rate:             rate,
-		Stats:            &Statistics.Stats{Endpoint: end},
-		ConcurrencyLimit: concurrencyLimit,
-	}
-}
+// func NewTester(r *http.Request, conns int, dur, rate time.Duration, end string, concurrencyLimit int) *LoadTester {
+// 	return &LoadTester{
+// 		Endpoint:         end,
+// 		Request:          r,
+// 		Client:           &http.Client{},
+// 		Conns:            conns,
+// 		Dur:              dur,
+// 		Rate:             rate,
+// 		Stats:            &Statistics.Stats{Endpoint: end},
+// 		ConcurrencyLimit: concurrencyLimit,
+// 	}
+// }
 
-func (l *LoadTester) RunTest(workerID int) *Statistics.Stats {
+func RunTest(workerID int, l *Service.LoadTester) *Statistics.Stats {
 	var body []byte;
 	start := time.Now();
 
