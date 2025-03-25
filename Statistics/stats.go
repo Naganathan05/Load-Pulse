@@ -6,6 +6,27 @@ import (
 	"sync"
 )
 
+const (
+	Red    = "\033[31m"
+	Green  = "\033[32m"
+	Blue   = "\033[34m"
+	White  = "\033[37m"
+	Reset  = "\033[0m"
+	Violet    = "\033[35m"
+)
+
+func LogServer(message string) {
+	fmt.Printf("%s%s%s", White, message, Reset)
+}
+
+func LogBlue(message string) {
+	fmt.Printf("%s%s%s", Blue, message, Reset)
+}
+
+func LogGreen(message string) {
+	fmt.Printf("%s%s%s", Green, message, Reset)
+}
+
 type Stats struct {
     sync.Mutex
     Endpoint      string
@@ -43,11 +64,11 @@ func (s *Stats) Avg() {
 }
 
 func (s *Stats) Print() {
-	fmt.Printf("\n[LOG]: Test completed for endpoint: %s \n", s.Endpoint)
-    fmt.Println("----------------------- STATS -------------------------------");
-	fmt.Printf("	Total requests completed: %d \n", s.TotalRequests);
-    fmt.Printf("    Total Number of Error Requests: %d\n", s.FailedRequests);
-	fmt.Printf("	Average response size: %f bytes\n", s.ResponseSize);
-	fmt.Printf("	Average response time: %s \n", s.ResponseDur.String());
-    fmt.Printf("--------------------------------------------------------------\n\n");
+	logMsg := fmt.Sprintf("\n[LOG]: Test completed for endpoint: %s \n", s.Endpoint); LogServer(logMsg);
+    LogBlue("----------------------- STATS ---------------------------------\n");
+	logMsg = fmt.Sprintf("	Total requests completed: %d\n", s.TotalRequests); LogGreen(logMsg);
+    logMsg = fmt.Sprintf("        Total Number of Error Requests: %d\n", s.FailedRequests); LogGreen(logMsg);
+	logMsg = fmt.Sprintf("	Average response size: %f bytes\n", s.ResponseSize); LogGreen(logMsg);
+	logMsg = fmt.Sprintf("	Average response time: %s \n", s.ResponseDur.String()); LogGreen(logMsg);
+    LogBlue("----------------------------------------------------------------\n\n");
 }

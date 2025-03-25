@@ -5,8 +5,9 @@ import (
 	"log"
 	"sync"
 
-	"github.com/streadway/amqp"
 	config "Load-Pulse/Config"
+
+	"github.com/streadway/amqp"
 )
 
 var (
@@ -18,12 +19,12 @@ func ConnectRabbitMQ() {
 	var err error;
 	cfg := config.GetConfig();
 	once.Do(func() {
-		fmt.Println("[LOG]: Establishing RabbitMQ Connection");
+		LogServer("[LOG]: Establishing RabbitMQ Connection\n");
 		connection, err = amqp.Dial(cfg.RabbitMQURL);
 		if err != nil {
 			log.Fatalf("[ERR]: Failed to connect to RabbitMQ: %s", err);
 		}
-		fmt.Println("[LOG]: RabbitMQ Connection Established");
+		LogServer("[LOG]: RabbitMQ Connection Established\n");
 	})
 }
 
@@ -46,7 +47,8 @@ func CreateQueue(queueName string) error {
 		return fmt.Errorf("[ERR]: Failed to declare queue: %v", err);
 	}
 
-	fmt.Printf("[LOG]: Published Stats Events to %s Succussfully.\n", queueName);
+	logMsg := fmt.Sprintf("[LOG]: Published Stats Events to %s Succussfully.\n", queueName);
+	LogServer(logMsg);
 	return nil;
 }
 
@@ -133,6 +135,6 @@ func ConsumeFromQueue(queueName string) (<-chan amqp.Delivery, error) {
 func CloseRabbitMQ() {
 	if connection != nil {
 		connection.Close();
-		fmt.Println("[LOG]: RabbitMQ Connection Closed.");
+		LogServer("[LOG]: RabbitMQ Connection Closed.\n");
 	}
 }

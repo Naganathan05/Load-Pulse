@@ -13,7 +13,8 @@ import (
 func startWorker(id int, tester *Service.LoadTester, leaderCh chan *Statistics.Stats, wg *sync.WaitGroup, mu *sync.Mutex, maxRequests int) {
 	defer wg.Done();
 
-	fmt.Printf("[WORKER-%d]: Starting Worker for %s | Max Requests: %d\n", id, tester.Endpoint, maxRequests);
+	workerMsg := fmt.Sprintf("[WORKER-%d]: Starting Worker for %s | Max Requests: %d\n", id, tester.Endpoint, maxRequests);
+	Service.LogWorker(workerMsg);
 	ticker := time.NewTicker(tester.Rate);
 	defer ticker.Stop();
 
@@ -24,7 +25,8 @@ func startWorker(id int, tester *Service.LoadTester, leaderCh chan *Statistics.S
 	for {
 		select {
 		case <- stop:
-			fmt.Printf("[WORKER-%d]: Stopping Worker\n", id);
+			workerMsg := fmt.Sprintf("[WORKER-%d]: Stopping Worker\n", id);
+			Service.LogWorker(workerMsg);
 			leaderCh <- stats;
 			return;
 
@@ -32,7 +34,8 @@ func startWorker(id int, tester *Service.LoadTester, leaderCh chan *Statistics.S
 			mu.Lock();
 			if requestsMade >= maxRequests {
 				mu.Unlock();
-				// fmt.Printf("[WORKER-%d]: Load Requests Done. Terminating\n", id);
+				// workerMsg := fmt.Sprintf("[WORKER-%d]: Load Requests Done. Terminating\n", id);
+				// Service.LogWorker(workerMsg);
 				leaderCh <- stats;
 				return;
 			}

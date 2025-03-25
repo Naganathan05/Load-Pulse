@@ -14,7 +14,7 @@ func Run(b *Service.Bench) {
 
 	cfg := Config.GetConfig();
 
-	fmt.Println("[LOG]: Starting Load Test for Individual Endpoints By Clustering");
+	Service.LogServer("[LOG]: Starting Load Test for Individual Endpoints By Clustering\n");
 
 	var mu sync.Mutex;
 	for testerIndex, tester := range b.Testers {
@@ -44,8 +44,9 @@ func Run(b *Service.Bench) {
 			log.Fatalf("[ERROR]: Failed to Delete Queue: %v\n", err);
 		}
 
-		fmt.Printf("[LOG]: Tester %d → Total Requests: %d | Workers: %d | Req/Worker: %d | Remaining: %d\n",
+		logMsg := fmt.Sprintf("[LOG]: Tester %d → Total Requests: %d | Workers: %d | Req/Worker: %d | Remaining: %d\n",
 			testerIndex+1, totalRequests, numWorkersPerCluster, requestsPerWorker, remainingRequests);
+		Service.LogServer(logMsg);
 
 		for clusterID := 0; clusterID < numClusters; clusterID++ {
 			wg.Add(1);
@@ -57,7 +58,8 @@ func Run(b *Service.Bench) {
 
 			go func(t *Service.LoadTester, clusterID, testerIndex, finalRequests int) {
 
-				fmt.Printf("[Cluster-%d, Tester-%d]: Starting Leader with %d Requests\n", clusterID + 1, testerIndex + 1, finalRequests);
+				clusterMsg:= fmt.Sprintf("[Cluster-%d, Tester-%d]: Starting Leader with %d Requests\n", clusterID + 1, testerIndex + 1, finalRequests);
+				Service.LogCluster(clusterMsg);
 				StartLeader(clusterID, t, numWorkersPerCluster, finalRequests, queueName, &wg, &mu);
 
 			}(tester, clusterID, testerIndex, finalRequests);

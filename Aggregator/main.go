@@ -22,11 +22,12 @@ func main() {
 	}
 
 	if err != nil {
-		fmt.Printf("[ERROR]: Failed to load config: %v\n", err);
+		errMsg := fmt.Sprintf("[ERROR]: Failed to load config: %v\n", err);
+		Service.LogError(errMsg);
 		os.Exit(1);
 	}
 
-	fmt.Println("[AGGREGATOR]: Starting Aggregator Service")
+	Service.LogCluster("[AGGREGATOR]: Starting Aggregator Service\n")
 
 	var wg sync.WaitGroup;
 	cfg := Config.GetConfig();
@@ -41,7 +42,8 @@ func main() {
 		numClusters := totalRequests / numWorkersPerCluster;
 
 		eventCount.Store(queueName, numClusters);
-		fmt.Printf("[AGGREGATOR]: Listening on Queue %s With %d Expected Events\n", queueName, numClusters);
+		logMsg := fmt.Sprintf("[AGGREGATOR]: Starting Aggregator Service for %s with %d clusters\n", queueName, numClusters);
+		Service.LogCluster(logMsg);
 
 		wg.Add(1);
 		go func(qName string) {
@@ -52,5 +54,5 @@ func main() {
 
 	wg.Wait();
 	Service.CloseRabbitMQ();
-	fmt.Println("[AGGREGATOR]: Aggregation Completed For All Endpoints.");
+	Service.LogCluster("[AGGREGATOR]: Aggregation Completed For All Endpoints.\n");
 }

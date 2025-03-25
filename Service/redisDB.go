@@ -1,11 +1,11 @@
 package Service
 
 import (
-	"fmt"
-	"log"
 	"context"
+	"log"
 
 	config "Load-Pulse/Config"
+
 	redis "github.com/redis/go-redis/v9"
 )
 
@@ -45,7 +45,7 @@ func ResetRequestCount() {
 	if err != nil {
 		log.Fatal("[ERR]: Error in Resetting Concurrent Requests Count in Redis !!", err);
 	}
-	fmt.Println("[LOG]: Concurrency Count Reset Done");
+	LogServer("[LOG]: Concurrency Count Reset Done\n");
 }
 
 func InitRedisClient() {
@@ -56,5 +56,5 @@ func InitRedisClient() {
 		DB:       0,
 		Protocol: 2,
 	})
-	fmt.Println("[LOG]: Redis Client Initialized");
+	LogServer("[LOG]: Redis Client Initialized\n");
 }

@@ -50,7 +50,8 @@ func StartLeader(id int, tester *Service.LoadTester, workerCnt int, maxRequests 
 	}
 
 	statsJSON, _ := json.Marshal(leader.stats);
-	fmt.Printf("[LEADER-%d]: Publishing Stats to Queue: %s\n", leader.id, queueName);
+	leaderMsg := fmt.Sprintf("[LEADER-%d]: Publishing Stats to Queue: %s\n", leader.id, queueName);
+	Service.LogLeader(leaderMsg);
 
 	err := Service.CreateQueue(queueName);
 	if err != nil {

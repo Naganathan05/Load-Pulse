@@ -21,7 +21,8 @@ func AggregateStatsWithCount(queueName string, eventCount *sync.Map, endpoint st
 	for consumedCount < expectedEvents {
 		msgs, err := Service.ConsumeFromQueue(queueName);
 		if err != nil {
-			fmt.Printf("[ERR]: Failed to Consume From Queue: %v\n", err);
+			errMsg := fmt.Sprintf("[ERR]: Failed to Consume From Queue: %v\n", err);
+			Service.LogError(errMsg);
 			time.Sleep(1 * time.Second);
 			continue;
 		}
@@ -30,7 +31,8 @@ func AggregateStatsWithCount(queueName string, eventCount *sync.Map, endpoint st
 			var stats Statistics.Stats;
 			err := json.Unmarshal(msg.Body, &stats);
 			if err != nil {
-				fmt.Printf("[ERR]: Failed to unmarshal stats: %v\n", err);
+				errMsg := fmt.Sprintf("[ERR]: Failed to unmarshal stats: %v\n", err);
+				Service.LogError(errMsg);
 				continue;
 			}
 
@@ -45,16 +47,19 @@ func AggregateStatsWithCount(queueName string, eventCount *sync.Map, endpoint st
 			eventCount.Store(queueName, consumedCount);
 
 			if consumedCount >= expectedEvents {
-				fmt.Printf("[AGGREGATOR]: Consumed All (%d) Events for Queue %s\n", consumedCount, queueName);
+				logMsg := fmt.Sprintf("[AGGREGATOR]: Consumed All (%d) Events for Queue %s\n", consumedCount, queueName);
+				Service.LogCluster(logMsg);
 				break;
 			}
 		}
 
-		fmt.Printf("[AGGREGATOR]: Consumed %d/%d Events for Queue %s\n", consumedCount, expectedEvents, queueName);
+		logMsg := fmt.Sprintf("[AGGREGATOR]: Consumed %d/%d Events for Queue %s\n", consumedCount, expectedEvents, queueName);
+		Service.LogCluster(logMsg);
 
 		time.Sleep(50 * time.Millisecond);
 	}
 
-	fmt.Printf("[AGGREGATOR]: Final Aggregated Stats for %s:\n", queueName);
+	logMsg := fmt.Sprintf("[AGGREGATOR]: Final Aggregated Stats for %s:\n", queueName);
+	Service.LogCluster(logMsg);
 	aggregatedStats.Print();
 }
