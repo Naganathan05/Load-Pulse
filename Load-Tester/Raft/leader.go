@@ -46,6 +46,8 @@ func StartLeader(id int, tester *Service.LoadTester, workerCnt int, maxRequests 
 		leader.stats.FailedRequests += stats.FailedRequests;
 		leader.stats.ResponseSize += stats.ResponseSize;
 		leader.stats.ResponseDur += stats.ResponseDur;
+		leader.stats.MaxResponseTime = max(leader.stats.MaxResponseTime, stats.MaxResponseTime);
+		leader.stats.MinResponseTime = min(leader.stats.MinResponseTime, stats.MinResponseTime);
 		leader.stats.Unlock();
 	}
 

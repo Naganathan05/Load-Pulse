@@ -20,7 +20,7 @@ func startWorker(id int, tester *Service.LoadTester, leaderCh chan *Statistics.S
 
 	stop := time.After(tester.Dur);
 	requestsMade := 0;
-	stats := &Statistics.Stats{};
+	stats := &Statistics.Stats{MinResponseTime: time.Second * 1000};
 
 	for {
 		select {

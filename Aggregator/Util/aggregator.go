@@ -41,6 +41,8 @@ func AggregateStatsWithCount(queueName string, eventCount *sync.Map, endpoint st
 			aggregatedStats.FailedRequests += stats.FailedRequests;
 			aggregatedStats.ResponseSize += stats.ResponseSize;
 			aggregatedStats.ResponseDur += stats.ResponseDur;
+			aggregatedStats.MaxResponseTime = max(aggregatedStats.MaxResponseTime, stats.MaxResponseTime);
+			aggregatedStats.MinResponseTime = min(aggregatedStats.MinResponseTime, stats.MinResponseTime);
 			aggregatedStats.Unlock();
 
 			consumedCount += 1;
