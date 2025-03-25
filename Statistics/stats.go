@@ -43,8 +43,10 @@ func (s *Stats) Avg() {
 }
 
 func (s *Stats) Print() {
-	fmt.Printf("Test completed for endpoint: %s \n", s.Endpoint)
+	fmt.Printf("\n[LOG]: Test completed for endpoint: %s \n", s.Endpoint)
+    fmt.Println("----------------------- STATS -------------------------------");
 	fmt.Printf("	Total requests completed: %d \n", s.TotalRequests)
 	fmt.Printf("	Average response size: %f bytes\n", s.ResponseSize)
 	fmt.Printf("	Average response time: %s \n", s.ResponseDur.String())
+    fmt.Printf("--------------------------------------------------------------\n\n");
 }

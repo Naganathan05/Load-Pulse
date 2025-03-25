@@ -44,7 +44,7 @@ func CreateQueue(queueName string) error {
 		return fmt.Errorf("[ERR]: Failed to declare queue: %v", err);
 	}
 
-	fmt.Printf("[LOG]: Queue %s is ready.\n", queueName);
+	fmt.Printf("[LOG]: Published Stats Events to %s Succussfully.\n", queueName);
 	return nil;
 }
 
@@ -64,12 +64,24 @@ func DeleteQueue(queueName string) error {
 	if err != nil {
 		return fmt.Errorf("[ERR]: Failed to delete queue: %v", err);
 	}
-
-	fmt.Printf("[LOG]: Queue %s deleted successfully.\n", queueName);
 	return nil;
 }
 
-// PublishToQueue sends a message to the specified queue.
+func InspectQueue(queueName string) (amqp.Queue, error) {
+	channel, err := connection.Channel()
+	if err != nil {
+		return amqp.Queue{}, fmt.Errorf("[ERR]: Failed to open channel: %v", err)
+	}
+	defer channel.Close()
+
+	queue, err := channel.QueueInspect(queueName)
+	if err != nil {
+		return amqp.Queue{}, fmt.Errorf("[ERR]: Failed to inspect queue: %v", err)
+	}
+
+	return queue, nil
+}
+
 func PublishToQueue(queueName string, message []byte) error {
 	channel, err := connection.Channel();
 	if err != nil {
@@ -90,7 +102,7 @@ func PublishToQueue(queueName string, message []byte) error {
 	if err != nil {
 		return fmt.Errorf("[ERR]: Failed to publish message: %v", err);
 	}
-	return nil
+	return nil;
 }
 
 func ConsumeFromQueue(queueName string) (<-chan amqp.Delivery, error) {

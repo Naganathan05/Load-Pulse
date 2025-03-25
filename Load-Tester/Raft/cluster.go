@@ -1,52 +1,13 @@
 package Raft
 
 import (
+	"log"
 	"fmt"
 	"sync"
 
 	"Load-Pulse/Config"
 	"Load-Pulse/Service"
 )
-
-// func min(a int, b int) int {
-// 	if a < b {
-// 		return a;
-// 	}
-// 	return b;
-// }
-
-// func NewLoadTester(path string) (*Bench, error) {
-// 	var testers []*LoadTester;
-
-// 	conf, err := Service.FromJSON(path);
-// 	if err != nil {
-// 		return nil, err;
-// 	}
-
-// 	for _, req := range conf.Req {
-// 		var buf io.Reader;
-// 		addr := conf.Host + req.Endpoint;
-
-// 		if req.Data != "" {
-// 			buf = bytes.NewBufferString(req.Data);
-// 		}
-
-// 		r, err := http.NewRequest(req.Method, addr, buf);
-// 		if err != nil {
-// 			return nil, err;
-// 		}
-
-// 		lt := NewTester(r, req.Connections, conf.Duration*time.Second, req.Rate*time.Millisecond, req.Endpoint, req.ConcurrencyLimit);
-// 		testers = append(testers, lt);
-// 	}
-
-// 	b := &Bench{
-// 		testers: testers,
-// 		ch:      make(chan *Statistics.Stats, len(testers)),
-// 	}
-
-// 	return b, nil;
-// }
 
 func Run(b *Service.Bench) {
 	var wg sync.WaitGroup;
@@ -57,9 +18,6 @@ func Run(b *Service.Bench) {
 
 	var mu sync.Mutex;
 	for testerIndex, tester := range b.Testers {
-		fmt.Println("Total Conns:", tester.Conns);
-		fmt.Println("Duration: ", int(tester.Dur.Seconds()));
-		fmt.Println("Rate: ", int(tester.Rate.Milliseconds()));
 		totalRequests := tester.Conns * int(tester.Dur.Seconds()) / int(tester.Rate.Milliseconds());
 		numWorkersPerCluster := Service.Min(cfg.ClusterSize, totalRequests);
 		numClusters := totalRequests / numWorkersPerCluster;
@@ -70,7 +28,7 @@ func Run(b *Service.Bench) {
 		baseQueueName := cfg.BaseQueueName;
 		queueName := fmt.Sprintf("%s-%d", baseQueueName, testerIndex + 1);
 
-		// ------------------------   DEBUGGING  --------------------------------
+		/* ------------------------   DEBUGGING  --------------------------------
 			fmt.Println("Total Requests:", totalRequests);
 		 	fmt.Println("Number of Clusters:", numClusters);
 		 	fmt.Println("Number of Workers Per Cluster:", numWorkersPerCluster);
@@ -79,7 +37,12 @@ func Run(b *Service.Bench) {
 		 	fmt.Println("Number of Connections Required:", tester.Conns);
 		 	fmt.Println("Concurrency Limit:", tester.ConcurrencyLimit);
 		 	fmt.Println("Request Rate:", int(tester.Rate.Milliseconds()));
-		// ---------------------------------------------------------------------------*/
+		---------------------------------------------------------------------------*/
+
+		err := Service.DeleteQueue(queueName);
+		if err != nil {	
+			log.Fatalf("[ERROR]: Failed to Delete Queue: %v\n", err);
+		}
 
 		fmt.Printf("[LOG]: Tester %d → Total Requests: %d | Workers: %d | Req/Worker: %d | Remaining: %d\n",
 			testerIndex+1, totalRequests, numWorkersPerCluster, requestsPerWorker, remainingRequests);
@@ -100,6 +63,5 @@ func Run(b *Service.Bench) {
 			}(tester, clusterID, testerIndex, finalRequests);
 		}
 	}
-
 	wg.Wait();
 }

@@ -32,7 +32,7 @@ func startWorker(id int, tester *Service.LoadTester, leaderCh chan *Statistics.S
 			mu.Lock();
 			if requestsMade >= maxRequests {
 				mu.Unlock();
-				fmt.Printf("[WORKER-%d]: Max Requests Reached. Stopping...\n", id);
+				// fmt.Printf("[WORKER-%d]: Load Requests Done. Terminating\n", id);
 				leaderCh <- stats;
 				return;
 			}

@@ -52,12 +52,7 @@ func StartLeader(id int, tester *Service.LoadTester, workerCnt int, maxRequests 
 	statsJSON, _ := json.Marshal(leader.stats);
 	fmt.Printf("[LEADER-%d]: Publishing Stats to Queue: %s\n", leader.id, queueName);
 
-	err := Service.DeleteQueue(queueName);
-	if err != nil {	
-		log.Fatalf("[ERROR]: Failed to Delete Queue: %v\n", err);
-	}
-	
-	err = Service.CreateQueue(queueName);
+	err := Service.CreateQueue(queueName);
 	if err != nil {
 		log.Fatalf("[ERROR]: Failed to Create Queue: %v\n", err);
 	}

@@ -4,11 +4,11 @@
             "method":"GET",
             "endpoint": "/api/admin/getAllDepartments",
             "data": "",
-            "connections": 1,
+            "connections": 10,
             "rate":1,
             "concurrencyLimit": 1
         }
     ],
     "host":"http://localhost:8080",
-    "duration":5
+    "duration":10
 }

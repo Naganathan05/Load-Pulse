@@ -24,6 +24,7 @@ func main() {
 	Service.ResetRequestCount();
 
 	Service.ConnectRabbitMQ();
+
 	defer Service.CloseRabbitMQ();
 
 	go func() {

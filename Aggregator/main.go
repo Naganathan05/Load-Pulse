@@ -18,7 +18,7 @@ func main() {
 
 	testObj, err := Service.NewLoadTester(arg);
 	if err != nil {
-		log.Fatal("[ERR]: Invalid File Arguement:", err);
+		log.Fatal("[ERR]: Invalid File Argument:", err);
 	}
 
 	if err != nil {
@@ -26,29 +26,28 @@ func main() {
 		os.Exit(1);
 	}
 
-	fmt.Println("[AGGREGATOR]: Starting Aggregator Service...");
+	fmt.Println("[AGGREGATOR]: Starting Aggregator Service")
 
 	var wg sync.WaitGroup;
 	cfg := Config.GetConfig();
 
-	for testerIndex, tester := range testObj.Testers {
-		queueName := fmt.Sprintf("%s-%d", cfg.BaseQueueName, testerIndex + 1);
+	var eventCount sync.Map;
 
-		fmt.Println("Total Conns:", tester.Conns);
-		fmt.Println("Duration: ", int(tester.Dur.Seconds()));
-		fmt.Println("Rate: ", int(tester.Rate.Milliseconds()));
+	for testerIndex, tester := range testObj.Testers {
+		queueName := fmt.Sprintf("%s-%d", cfg.BaseQueueName, testerIndex+1)
 
 		totalRequests := tester.Conns * int(tester.Dur.Seconds()) / int(tester.Rate.Milliseconds());
 		numWorkersPerCluster := Service.Min(cfg.ClusterSize, totalRequests);
 		numClusters := totalRequests / numWorkersPerCluster;
 
-		fmt.Printf("[AGGREGATOR]: Listening on Queue %s With %d Clusters\n", queueName, numClusters);
+		eventCount.Store(queueName, numClusters);
+		fmt.Printf("[AGGREGATOR]: Listening on Queue %s With %d Expected Events\n", queueName, numClusters);
 
 		wg.Add(1);
-		go func(qName string, clusters int) {
+		go func(qName string) {
 			defer wg.Done();
-			Util.AggregateStats(qName, clusters);
-		}(queueName, numClusters);
+			Util.AggregateStatsWithCount(qName, &eventCount, tester.Endpoint);
+		}(queueName);
 	}
 
 	wg.Wait();

@@ -3,44 +3,58 @@ package Util
 import (
 	"fmt"
 	"encoding/json"
+	"sync"
+	"time"
 
 	"Load-Pulse/Service"
 	"Load-Pulse/Statistics"
 )
 
-func AggregateStats(queueName string, expectedClusters int) {
-	fmt.Printf("[AGGREGATOR]: Listening on Queue: %s\n", queueName);
+func AggregateStatsWithCount(queueName string, eventCount *sync.Map, endpoint string) {
 
-	msgs, err := Service.ConsumeFromQueue(queueName);
-	if err != nil {
-		fmt.Printf("[ERR]: Failed to Consume From Queue: %v\n", err);
-		return;
-	}
+	aggregatedStats := &Statistics.Stats{Endpoint: endpoint};
+	consumedCount := 0;
 
-	aggregatedStats := &Statistics.Stats{};
-	clusterCount := 0;
+	expectedCount, _ := eventCount.Load(queueName);
+	expectedEvents := expectedCount.(int);
 
-	for msg := range msgs {
-		var stats Statistics.Stats;
-		err := json.Unmarshal(msg.Body, &stats);
+	for consumedCount < expectedEvents {
+		msgs, err := Service.ConsumeFromQueue(queueName);
 		if err != nil {
-			fmt.Printf("[ERR]: Failed to unmarshal stats: %v\n", err);
+			fmt.Printf("[ERR]: Failed to Consume From Queue: %v\n", err);
+			time.Sleep(1 * time.Second);
 			continue;
 		}
 
-		aggregatedStats.Lock();
-		aggregatedStats.TotalRequests += stats.TotalRequests;
-		aggregatedStats.FailedRequests += stats.FailedRequests;
-		aggregatedStats.ResponseSize += stats.ResponseSize;
-		aggregatedStats.ResponseDur += stats.ResponseDur;
-		aggregatedStats.Unlock();
+		for msg := range msgs {
+			var stats Statistics.Stats;
+			err := json.Unmarshal(msg.Body, &stats);
+			if err != nil {
+				fmt.Printf("[ERR]: Failed to unmarshal stats: %v\n", err);
+				continue;
+			}
 
-		clusterCount += 1;
-		if clusterCount >= expectedClusters {
-			break;
+			aggregatedStats.Lock();
+			aggregatedStats.TotalRequests += stats.TotalRequests;
+			aggregatedStats.FailedRequests += stats.FailedRequests;
+			aggregatedStats.ResponseSize += stats.ResponseSize;
+			aggregatedStats.ResponseDur += stats.ResponseDur;
+			aggregatedStats.Unlock();
+
+			consumedCount += 1;
+			eventCount.Store(queueName, consumedCount);
+
+			if consumedCount >= expectedEvents {
+				fmt.Printf("[AGGREGATOR]: Consumed All (%d) Events for Queue %s\n", consumedCount, queueName);
+				break;
+			}
 		}
+
+		fmt.Printf("[AGGREGATOR]: Consumed %d/%d Events for Queue %s\n", consumedCount, expectedEvents, queueName);
+
+		time.Sleep(50 * time.Millisecond);
 	}
 
-	fmt.Printf("\n[AGGREGATOR]: Final Aggregated Stats for %s:\n", queueName);
+	fmt.Printf("[AGGREGATOR]: Final Aggregated Stats for %s:\n", queueName);
 	aggregatedStats.Print();
 }

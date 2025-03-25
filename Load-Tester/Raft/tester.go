@@ -2,37 +2,13 @@ package Raft
 
 import (
 	"io"
-	"fmt"
+	// "fmt"
 	"time"
 	
 	"Load-Pulse/Config"
 	"Load-Pulse/Service"
 	"Load-Pulse/Statistics"
 )
-
-// type LoadTester struct {
-// 	Endpoint         string
-// 	Conns            int
-// 	Request          *http.Request
-// 	Client           *http.Client
-// 	Stats            *Statistics.Stats
-// 	Dur              time.Duration
-// 	Rate             time.Duration
-// 	ConcurrencyLimit int
-// }
-
-// func NewTester(r *http.Request, conns int, dur, rate time.Duration, end string, concurrencyLimit int) *LoadTester {
-// 	return &LoadTester{
-// 		Endpoint:         end,
-// 		Request:          r,
-// 		Client:           &http.Client{},
-// 		Conns:            conns,
-// 		Dur:              dur,
-// 		Rate:             rate,
-// 		Stats:            &Statistics.Stats{Endpoint: end},
-// 		ConcurrencyLimit: concurrencyLimit,
-// 	}
-// }
 
 func RunTest(workerID int, l *Service.LoadTester) *Statistics.Stats {
 	var body []byte;
@@ -43,7 +19,7 @@ func RunTest(workerID int, l *Service.LoadTester) *Statistics.Stats {
 
 	currConcurrencyCount := Service.GetRequestCount();
 	for currConcurrencyCount > int64(l.ConcurrencyLimit) {
-		fmt.Printf("[WORKER-ALERT-%d]: Concurrency Count: %d => Limit Reached !! Waiting\n", workerID, currConcurrencyCount);
+		// fmt.Printf("[WORKER-ALERT-%d]: Concurrency Count: %d => Limit Reached !! Waiting\n", workerID, currConcurrencyCount);
 		time.Sleep(time.Millisecond * time.Duration(requestSleepTime));
 		currConcurrencyCount = Service.GetRequestCount();
 	}
