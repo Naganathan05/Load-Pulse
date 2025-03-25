@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    env_file:
+      - .env
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    env_file:
+      - .env
+
+  load-tester:
+    build:
+      context: ./load-tester
+    container_name: load-tester
+    depends_on:
+      - rabbitmq
+      - redis
+    env_file:
+      - .env
+    ports:
+      - "${LOAD_TESTER_PORT}:8080"
+
+  aggregator:
+    build:
+      context: ./aggregator
+    container_name: aggregator
+    depends_on:
+      - rabbitmq
+      - redis
+    env_file:
+      - .env
+    ports:
+      - "${AGGREGATOR_PORT}:8081"

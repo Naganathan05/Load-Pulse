@@ -16,6 +16,11 @@ var (
 
 type Config struct {
 	RedisKey string
+	RedisURL string
+	RedisPassword string
+	RabbitMQURL string
+	TesterServerPort string
+	AggregatorServerPort string
 	ClusterSize int
 	BaseQueueName string
 	RequestSleepTime int
@@ -55,11 +60,29 @@ func GetConfig() *Config {
 			log.Fatalf("[ERROR]: Invalid Request Sleep Time !!");
 		}
 
+		var rabbitMQURL, redisURL string;
+		if _, exists := os.LookupEnv("HOSTNAME"); exists {
+			rabbitMQURL = os.Getenv("RABBITMQ_URL_DOCKER");
+		} else {
+			rabbitMQURL = os.Getenv("RABBITMQ_URL_LOCAL");
+		}
+
+		if _, exists := os.LookupEnv("HOSTNAME"); exists {
+			redisURL = os.Getenv("REDIS_URL_DOCKER");
+		} else {
+			redisURL = os.Getenv("REDIS_URL_LOCAL");
+		}
+
 		configInstance = Config{
-			RedisKey: os.Getenv("REDIS_KEY"),
+			RedisURL: redisURL,
+			RabbitMQURL: rabbitMQURL,
 			ClusterSize: clusterSize,
-			BaseQueueName: os.Getenv("BASE_QUEUE_NAME"),
+			RedisKey: os.Getenv("REDIS_KEY"),
 			RequestSleepTime: requestSleepTime,
+			RedisPassword: os.Getenv("REDIS_PASSWORD"),
+			BaseQueueName: os.Getenv("BASE_QUEUE_NAME"),
+			TesterServerPort: os.Getenv("LOAD_TESTER_PORT"),
+			AggregatorServerPort: os.Getenv("AGGREGATOR_PORT"),
 		}
 	});
 	return &configInstance;

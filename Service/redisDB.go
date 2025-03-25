@@ -49,9 +49,10 @@ func ResetRequestCount() {
 }
 
 func InitRedisClient() {
+	cfg := config.GetConfig();
 	client = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "",
+		Addr:     cfg.RedisURL,
+		Password: cfg.RedisPassword,
 		DB:       0,
 		Protocol: 2,
 	})

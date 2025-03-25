@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/streadway/amqp"
+	config "Load-Pulse/Config"
 )
 
 var (
@@ -15,9 +16,10 @@ var (
 
 func ConnectRabbitMQ() {
 	var err error;
+	cfg := config.GetConfig();
 	once.Do(func() {
 		fmt.Println("[LOG]: Establishing RabbitMQ Connection");
-		connection, err = amqp.Dial("amqp://guest:guest@localhost:5672/");
+		connection, err = amqp.Dial(cfg.RabbitMQURL);
 		if err != nil {
 			log.Fatalf("[ERR]: Failed to connect to RabbitMQ: %s", err);
 		}
