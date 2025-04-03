@@ -23,7 +23,9 @@ services:
     build:
       context: .
       dockerfile: Aggregator/Dockerfile
-    container_name: load-tester
+    container_name: aggregator
+    environment:
+      - DOCKER_ENV=true
     depends_on:
       - rabbitmq
       - redis
@@ -36,6 +38,9 @@ services:
     build:
       context: .
       dockerfile: Load-Tester/Dockerfile
+    container_name: load-tester
+    environment:
+      - DOCKER_ENV=true
     depends_on:
       - rabbitmq
       - redis

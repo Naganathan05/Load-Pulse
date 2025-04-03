@@ -7,16 +7,8 @@
             "connections": 10,
             "rate":1,
             "concurrencyLimit": 1
-        },
-        {
-            "method":"GET",
-            "endpoint": "/api/admin/getAllFaculty",
-            "data": "",
-            "connections": 10,
-            "rate":1,
-            "concurrencyLimit": 5
         }
     ],
-    "host":"http://localhost:8080",
+    "host":"http://host.docker.internal:8085/",
     "duration":10
 }
