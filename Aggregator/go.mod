@@ -23,4 +23,4 @@ replace Load-Pulse/Service => ../Service
 
 replace Load-Pulse/Statistics => ../Statistics
 
-replace Load-Pulse/Load_Tester => ../Load-Tester // Add this line
+replace Load-Pulse/Load_Tester => ../Load-Tester

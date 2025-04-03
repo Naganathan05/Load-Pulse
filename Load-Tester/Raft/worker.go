@@ -25,8 +25,8 @@ func startWorker(id int, tester *Service.LoadTester, leaderCh chan *Statistics.S
 	for {
 		select {
 		case <- stop:
-			workerMsg := fmt.Sprintf("[WORKER-%d]: Stopping Worker\n", id);
-			Service.LogWorker(workerMsg);
+			// workerMsg := fmt.Sprintf("[WORKER-%d]: Stopping Worker\n", id);
+			// Service.LogWorker(workerMsg);
 			leaderCh <- stats;
 			return;
 

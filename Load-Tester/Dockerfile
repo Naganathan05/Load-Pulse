@@ -1,14 +1,23 @@
 FROM golang:1.22-alpine
 
-WORKDIR /app
+WORKDIR /workspace
 
-COPY go.mod go.sum ./
+COPY ../Config Config/
+COPY ../Service Service/
+COPY ../Statistics Statistics/
+COPY bench.json /workspace/bench.json
+COPY .env /workspace/.env
+
+WORKDIR /workspace/Load-Tester
+
+COPY Load-Tester/go.mod Load-Tester/go.sum ./
+
+RUN go mod tidy
 RUN go mod download
 
-COPY . .
+COPY Load-Tester .  
 
-RUN go build -o load-tester.exe main.go
+RUN go build -o /workspace/Load-Tester/load-tester main.go
 
 EXPOSE 8080
-
-CMD ["./load-tester", "..\bench.json"]
+CMD ["./load-tester", "/workspace/bench.json"]
