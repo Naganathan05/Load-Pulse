@@ -5,10 +5,10 @@ import (
 )
 
 func IsDockerRunning() (bool, error) {
-	cmd := exec.Command("docker", "stats", "--no-stream")
-	err := cmd.Run()
+	cmd := exec.Command("docker", "stats", "--no-stream");
+	err := cmd.Run();
 	if err != nil {
-		return false, err
+		return false, err;
 	}
-	return true, nil
+	return true, nil;
 }

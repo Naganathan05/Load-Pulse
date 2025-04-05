@@ -11,9 +11,9 @@ var (
 )
 
 func LogInfo(msg string) {
-	fmt.Println(infoStyle.Render("[LOG]: " + msg))
+	fmt.Println(infoStyle.Render("[LOG]: " + msg));
 }
 
 func LogError(msg string) {
-	fmt.Println(errorStyle.Render("[ERROR]: " + msg))
+	fmt.Println(errorStyle.Render("[ERROR]: " + msg));
 }
