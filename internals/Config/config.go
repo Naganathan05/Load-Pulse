@@ -60,22 +60,9 @@ func GetConfig() *Config {
 			log.Fatalf("[ERROR]: Invalid Request Sleep Time !!");
 		}
 
-		var rabbitMQURL, redisURL string;
-		if _, exists := os.LookupEnv("HOSTNAME"); exists {
-			rabbitMQURL = os.Getenv("RABBITMQ_URL_DOCKER");
-		} else {
-			rabbitMQURL = os.Getenv("RABBITMQ_URL_LOCAL");
-		}
-
-		if _, exists := os.LookupEnv("HOSTNAME"); exists {
-			redisURL = os.Getenv("REDIS_URL_DOCKER");
-		} else {
-			redisURL = os.Getenv("REDIS_URL_LOCAL");
-		}
-
 		configInstance = Config{
-			RedisURL: redisURL,
-			RabbitMQURL: rabbitMQURL,
+			RedisURL: os.Getenv("REDIS_URL"),
+			RabbitMQURL: os.Getenv("RABBITMQ_URL"),
 			ClusterSize: clusterSize,
 			RedisKey: os.Getenv("REDIS_KEY"),
 			RequestSleepTime: requestSleepTime,
