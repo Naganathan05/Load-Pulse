@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/briandowns/spinner"
 	
-	"Load-Pulse/utils"
+	"github.com/Naganathan05/Load-Pulse/utils"
 )
 
 var runCmd = &cobra.Command{

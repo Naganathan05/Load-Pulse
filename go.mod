@@ -1,4 +1,4 @@
-module Load-Pulse
+module github.com/Naganathan05/Load-Pulse
 
 go 1.24.1
 

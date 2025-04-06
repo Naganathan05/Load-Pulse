@@ -1,7 +1,7 @@
 package main
 
 import (
-	"Load-Pulse/cmd"
+	"github.com/Naganathan05/Load-Pulse/cmd"
 )
 
 func main() {

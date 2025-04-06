@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"Load-Pulse/utils"
+	"github.com/Naganathan05/Load-Pulse/utils"
 	"github.com/spf13/cobra"
 )
 
