@@ -2,13 +2,13 @@
     "requests": [
         {
             "method":"GET",
-            "endpoint": "/api/admin/getAllDepartments",
-            "data": "",
+            "endpoint": "",
+            "data": "/api/test",
             "connections": 10,
             "rate":1,
             "concurrencyLimit": 1
         }
     ],
-    "host":"http://host.docker.internal:8085/",
+    "host":"https://pragati.amrita.edu/",
     "duration":10
 }

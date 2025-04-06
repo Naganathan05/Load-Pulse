@@ -24,6 +24,11 @@ var runCmd = &cobra.Command{
 		
 		utils.LogInfo("Spinning up Docker Containers...");
 		startCmd := exec.Command("docker", "compose", "up", "-d", "--build");
+
+		/*-------------------------- Debugging --------------------------
+		startCmd.Stdout = os.Stdout;
+		startCmd.Stderr = os.Stderr;
+		---------------------------------------------------------------*/
 		startCmd.Stdout = nil;
 		startCmd.Stderr = nil;
 		
