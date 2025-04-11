@@ -1,13 +1,14 @@
 package cmd
 
 import (
-	"os"
 	"fmt"
-	"time"
+	"os"
 	"os/exec"
-	"github.com/spf13/cobra"
+	"time"
+
 	"github.com/briandowns/spinner"
-	
+	"github.com/spf13/cobra"
+
 	"github.com/Naganathan05/Load-Pulse/utils"
 )
 
@@ -54,6 +55,8 @@ var runCmd = &cobra.Command{
 		logsCmd.Stdout = os.Stdout;
 		logsCmd.Stderr = os.Stderr;
 		logsCmd.Run();
+
+		cleanCmd.Run(cmd, args);
 	},
 }
 
