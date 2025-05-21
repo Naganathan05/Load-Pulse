@@ -1,18 +1,19 @@
 # Load-Pulse
-Load Testing tool built in Go which works based on Raft Algorithm.
+Load testing tool built in Go which works based on the Raft consensus algorithm. Designed for scalable and distributed benchmarking using Dockerized microservices.
 
-
-## High Level Architecture Diagram:
+## High-Level Architecture Diagram
 ![image](https://github.com/user-attachments/assets/9643db11-e4df-48b2-b642-666e5168ff8f)
 
-# Setup
+---
 
-## Prerequisites
-Before using Load Pulse, ensure you have the following installed:
-- **Docker** (Install from [Docker Official Website](https://www.docker.com/get-started))
-- **Git** (Install from [Git Official Website](https://git-scm.com/))
+## 🚀 Setup Guide
 
-## Setup Guide
+### 🔧 Prerequisites
+Before using Load Pulse, ensure the following tools are installed:
+- **[Docker](https://www.docker.com/get-started)** – Containerization engine
+- **[Git](https://git-scm.com/)** – Version control system
+
+---
 
 ### 1. Clone the Repository
 ```sh
@@ -20,55 +21,64 @@ git clone https://github.com/Naganathan05/Load-Pulse.git
 cd Load-Pulse
 ```
 
-### 2. Create the `.env` File
-In the root directory of the project, create a file named `.env` and add the following content:
+---
 
-```ini
-REDIS_KEY = "concurrencyCount"
-BASE_QUEUE_NAME = "StatsEventQueue"
-CLUSTER_SIZE = 10  # Maximum Allowed Workers Per Cluster
-REQUEST_SLEEP_TIME = 50
-
-# Service URLs
-REDIS_URL_LOCAL = "localhost:6379"
-REDIS_URL_DOCKER = "redis:6379"
-RABBITMQ_URL_LOCAL = "amqp://guest:guest@localhost:5672/"
-RABBITMQ_URL_DOCKER = "amqp://guest:guest@rabbitmq:5672/"
-
-# Ports
-LOAD_TESTER_PORT = "8080"
-AGGREGATOR_PORT = "8081"
+### 2. Modify `bench.json`
+- Edit the `bench.json` file to configure the load test parameters and target server.
+- If the target server runs on **localhost**, set the host like this:
+```json
+"host": "http://host.docker.internal:<port_number>/"
 ```
-
-### 3. Modify `bench.json`
-- Edit the `bench.json` file to configure the target endpoint and server.
-- If the target server is running on **localhost**, set the host as:
-  ```json
-  "host": "http://host.docker.internal:<port_number>/"
-  ```
-  This ensures proper communication between the container and the host machine.
-
-### 4. Start the Containers
-Run the following command to start the services:
-```sh
-docker compose up -d
-```
-This will start all necessary containers in detached mode.
-
-### 5. Check Aggregator Logs
-To verify that the load testing tool is running correctly, check the logs of the **aggregator** container:
-```sh
-docker logs aggregator
-```
-
-### 6. View Load Testing Results
-- Once the load test runs, check the results for the respective endpoints.
-- The statistics of the tested endpoints will be available in the logs and database.
-
-## Troubleshooting
-- **Containers fail to start?** Run `docker ps -a` to check for errors.
-- **RabbitMQ or Redis not connecting?** Ensure the correct service URL is being used from the `.env` file.
-- **Unable to reach localhost APIs?** Use `host.docker.internal:<port_number>` inside the container.
+> This allows containers to reach your local server properly.
 
 ---
-Maintainer: `Naganathan M R`
+
+### 3. Start Docker Desktop
+Ensure Docker Desktop is up and running, as the `docker-compose` command depends on the Docker daemon.
+
+---
+
+### 4. Start the Load Test
+Start the tool using:
+```sh
+go run .\main.go run
+```
+This command spins up all required microservice containers (load tester, aggregator, Redis, RabbitMQ) and initiates the benchmarking process.
+
+---
+
+### 5. View Load Testing Results
+- Once the test completes, results will be logged by the aggregator container.
+- The following metrics are recorded and printed:
+  - **Average Response Time**
+  - **Max Response Time**
+  - **Min Response Time**
+  - **Total Requests Sent**
+  - **Successful vs Failed Requests**
+
+---
+
+### 6. Cleanup After Test
+To stop and remove all containers created during the test:
+```sh
+docker compose down
+```
+To remove any leftover volumes and networks:
+```sh
+docker compose down -v --remove-orphans
+```
+
+---
+
+## 🛠 Troubleshooting
+
+- **Containers fail to start?**
+  - Run `docker ps -a` to check logs and exit codes.
+
+- **Unable to reach localhost APIs?**
+  - Always use `host.docker.internal:<port_number>` inside container configs.
+
+---
+
+## Maintainer
+`Naganathan M R` 
