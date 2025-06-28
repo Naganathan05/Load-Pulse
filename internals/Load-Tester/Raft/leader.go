@@ -51,7 +51,11 @@ func StartLeader(id int, tester *Service.LoadTester, workerCnt int, maxRequests 
 		leader.stats.Unlock();
 	}
 
-	statsJSON, _ := json.Marshal(leader.stats);
+	statsJSON, errors := json.Marshal(leader.stats);
+	if errors != nil {
+        Service.LogError(fmt.Sprintf("[LEADER-%d]: Failed to marshal stats: %v\n", leader.id, errors))
+        return
+    }
 	leaderMsg := fmt.Sprintf("[LEADER-%d]: Publishing Stats to Queue: %s\n", leader.id, queueName);
 	Service.LogLeader(leaderMsg);
 

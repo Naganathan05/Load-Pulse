@@ -20,6 +20,10 @@ func Run(b *Service.Bench) {
 	for testerIndex, tester := range b.Testers {
 		totalRequests := tester.Conns * int(tester.Dur.Seconds()) / int(tester.Rate.Milliseconds());
 		numWorkersPerCluster := Service.Min(cfg.ClusterSize, totalRequests);
+		if numWorkersPerCluster == 0 {
+            log.Printf("[ERROR]: numWorkersPerCluster is zero, skipping tester %d\n", testerIndex+1);
+            continue;
+        }
 		numClusters := totalRequests / numWorkersPerCluster;
 
 		requestsPerWorker := totalRequests / numWorkersPerCluster;
