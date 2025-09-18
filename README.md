@@ -58,18 +58,6 @@ This command spins up all required microservice containers (load tester, aggrega
 
 ---
 
-### 6. Cleanup After Test
-To stop and remove all containers created during the test:
-```sh
-docker compose down
-```
-To remove any leftover volumes and networks:
-```sh
-docker compose down -v --remove-orphans
-```
-
----
-
 ## 🛠 Troubleshooting
 
 - **Containers fail to start?**
