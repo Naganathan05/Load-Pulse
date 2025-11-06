@@ -4,9 +4,7 @@ import (
 	"fmt"
 	"log"
 	"sync"
-
 	config "Load-Pulse/Config"
-
 	"github.com/streadway/amqp"
 )
 
@@ -87,6 +85,10 @@ func InspectQueue(queueName string) (amqp.Queue, error) {
 }
 
 func PublishToQueue(queueName string, message []byte) error {
+
+	if err := CreateQueue(queueName); err != nil {
+        return err
+    }
 	channel, err := connection.Channel();
 	if err != nil {
 		return fmt.Errorf("[ERR]: Failed to open channel: %v", err);
@@ -110,6 +112,9 @@ func PublishToQueue(queueName string, message []byte) error {
 }
 
 func ConsumeFromQueue(queueName string) (<-chan amqp.Delivery, error) {
+	if err := CreateQueue(queueName); err != nil {
+        return nil, err
+    }
 	channel, err := connection.Channel();
 	if err != nil {
 		return nil, fmt.Errorf("[ERR]: Failed to open channel: %v", err);

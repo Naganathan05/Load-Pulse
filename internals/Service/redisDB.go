@@ -3,6 +3,7 @@ package Service
 import (
 	"context"
 	"log"
+	"sync"
 
 	config "Load-Pulse/Config"
 
@@ -13,15 +14,21 @@ var client *redis.Client;
 
 var ctx = context.Background();
 
+var mu sync.Mutex;
+
 func IncrementRequestCount() {
-	cfg := config.GetConfig();
-	err := client.Incr(ctx, cfg.RedisKey).Err();
+	mu.Lock()
+	defer mu.Unlock()
+	cfg := config.GetConfig()
+	err := client.Incr(ctx, cfg.RedisKey).Err()
 	if err != nil {
 		log.Fatal("[ERR]: Error in Incrementing Concurrent Request Count from Redis !!", err);
 	}
 }
 
 func DecrementRequestCount() {
+	mu.Lock()
+    defer mu.Unlock()
 	cfg := config.GetConfig();
 	err := client.Decr(ctx, cfg.RedisKey).Err();
 	if err != nil {
@@ -30,6 +37,8 @@ func DecrementRequestCount() {
 }
 
 func GetRequestCount() int64 {
+	mu.Lock()
+    defer mu.Unlock()
 	cfg := config.GetConfig();
 	currentCount, err := client.Get(ctx, cfg.RedisKey).Int64();
 	if err != nil {
@@ -40,6 +49,8 @@ func GetRequestCount() int64 {
 }
 
 func ResetRequestCount() {
+	mu.Lock()
+    defer mu.Unlock()
 	cfg := config.GetConfig();
 	err := client.Set(ctx, cfg.RedisKey, 0, 0).Err();
 	if err != nil {
