@@ -2,13 +2,13 @@
     "requests": [
         {
             "method":"GET",
-            "endpoint": "/api/admin/getAllDepartments",
+            "endpoint": "api/admin/getAllDepartments",
             "data": "",
             "connections": 10,
             "rate":1,
             "concurrencyLimit": 1
         }
     ],
-    "host":"http://host.docker.internal:8085/",
+    "host":"http://host.docker.internal:8081/",
     "duration":10
 }
