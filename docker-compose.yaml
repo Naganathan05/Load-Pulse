@@ -62,3 +62,5 @@ services:
       - .env
     ports:
       - "${AGGREGATOR_PORT}:8081"
+    volumes:
+      - ${BENCH_FILE_PATH:-./bench.json}:/workspace/bench.json:ro

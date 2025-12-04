@@ -5,7 +5,7 @@ WORKDIR /workspace
 COPY internals/Config Config/
 COPY internals/Service Service/
 COPY internals/Statistics Statistics/
-COPY ../bench.json /workspace/bench.json
+# COPY ../bench.json /workspace/bench.json
 COPY ../.env /workspace/.env
 
 WORKDIR /workspace/Load-Tester
