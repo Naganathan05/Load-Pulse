@@ -12,14 +12,14 @@ import (
 	"github.com/Naganathan05/Load-Pulse/utils"
 )
 
-var benchPath string
+var testConfigPath string
 
 var runCmd = &cobra.Command{
 	Use:   "run",
 	Short: "Run the load testing tool",
 	Run: func(cmd *cobra.Command, args []string) {
 		utils.LogInfo("Initializing Load Pulse");
-		utils.LogInfo("Using bench configuration file: " + benchPath);
+		utils.LogInfo("Using testConfig configuration file: " + testConfigPath);
 		ok, _ := utils.IsDockerRunning();
 		if !ok {
 			fmt.Printf("Docker Engine Not Running. Please Start Docker Daemon and try again.\n");
@@ -30,7 +30,7 @@ var runCmd = &cobra.Command{
 		startCmd := exec.Command("docker", "compose", "up", "-d", "--build");
 
 		env := os.Environ();
- 	    env = append(env, "BENCH_FILE_PATH=" + benchPath);
+ 	    env = append(env, "TESTCONFIG_FILE_PATH=" + testConfigPath);
 		startCmd.Env = env;
 
 		/*-------------------------- Debugging --------------------------
@@ -70,10 +70,10 @@ var runCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(runCmd);
 	runCmd.Flags().StringVarP(
-        &benchPath,
-        "bench",
-        "b",
-        "bench.json",
-        "Path to bench configuration file",
+        &testConfigPath,
+        "config",
+        "c",
+        "testConfig.json",
+        "Path to testConfig configuration file",
     );
 }
