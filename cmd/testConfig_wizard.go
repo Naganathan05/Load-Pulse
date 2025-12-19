@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -21,14 +20,14 @@ const (
 func runTestConfigInitWizard() (*testConfig, error) {
 	reader := bufio.NewReader(os.Stdin)
 
-	ColorPrompt("Host [" + defaultHost + "] (press Enter to accept): ")
+	LogPrompt("Host [" + defaultHost + "] (press Enter to accept): ")
 	host, _ := reader.ReadString('\n')
 	host = strings.TrimSpace(host)
 	if host == "" {
 		host = defaultHost
 	}
 
-	ColorPrompt("Duration in seconds [" + strconv.Itoa(defaultDuration) + "]: ")
+	LogPrompt("Duration in seconds [" + strconv.Itoa(defaultDuration) + "]: ")
 	durationStr, _ := reader.ReadString('\n')
 	durationStr = strings.TrimSpace(durationStr)
 	duration := defaultDuration
@@ -36,11 +35,12 @@ func runTestConfigInitWizard() (*testConfig, error) {
 		if v, err := strconv.Atoi(durationStr); err == nil && v > 0 {
 			duration = v
 		} else {
-			return nil, fmt.Errorf("invalid duration value")
+			LogError("invalid duration value")
+			os.Exit(1)
 		}
 	}
 
-	ColorPrompt("Number of request definitions [1]: ")
+	LogPrompt("Number of request definitions [1]: ")
 	reqCountStr, _ := reader.ReadString('\n')
 	reqCountStr = strings.TrimSpace(reqCountStr)
 	reqCount := 1
@@ -48,47 +48,48 @@ func runTestConfigInitWizard() (*testConfig, error) {
 		if v, err := strconv.Atoi(reqCountStr); err == nil && v > 0 {
 			reqCount = v
 		} else {
-			return nil, fmt.Errorf("invalid number of requests")
+			LogError("invalid number of requests")
+			os.Exit(1)
 		}
 	}
 
 	var requests []testConfigRequest
 
 	for i := 0; i < reqCount; i++ {
-		fmt.Print("\n")
-		ColorPrompt(fmt.Sprintf("Configuring request #%d", i+1))
-		fmt.Print("\n")
+		LogNewLine()
+		LogPrompt("Configuring request #" + strconv.Itoa(i+1))
+		LogNewLine()
 
 		var method string
 		for {
-			ColorPrompt("Method (e.g. GET, POST): ")
+			LogPrompt("Method (e.g. GET, POST): ")
 			method, _ = reader.ReadString('\n')
 			method = strings.TrimSpace(method)
 			if method != "" {
 				break
 			}
-			ColorHelp("Method is required. Please enter a method.")
+			LogHelp("Method is required. Please enter a method.")
 		}
 
 		var endpoint string
 		for {
-			ColorPrompt("Endpoint (e.g. api/admin/getAllDepartments): ")
+			LogPrompt("Endpoint (e.g. api/admin/getAllDepartments): ")
 			endpoint, _ = reader.ReadString('\n')
 			endpoint = strings.TrimSpace(endpoint)
 			if endpoint != "" {
 				break
 			}
-			ColorHelp("Endpoint is required. Please enter an endpoint.")
+			LogHelp("Endpoint is required. Please enter an endpoint.")
 		}
 
-		ColorPrompt("Body data (string) [" + defaultData + "]: ")
+		LogPrompt("Body data (string) [" + defaultData + "]: ")
 		data, _ := reader.ReadString('\n')
 		data = strings.TrimSpace(data)
 		if data == "" {
 			data = defaultData
 		}
 
-		ColorPrompt("Connections [" + strconv.Itoa(defaultConnections) + "]: ")
+		LogPrompt("Connections [" + strconv.Itoa(defaultConnections) + "]: ")
 		connsStr, _ := reader.ReadString('\n')
 		connsStr = strings.TrimSpace(connsStr)
 		connections := defaultConnections
@@ -96,11 +97,12 @@ func runTestConfigInitWizard() (*testConfig, error) {
 			if v, err := strconv.Atoi(connsStr); err == nil && v > 0 {
 				connections = v
 			} else {
-				return nil, fmt.Errorf("invalid connections value")
+				LogError("invalid connections value")
+				os.Exit(1)
 			}
 		}
 
-		ColorPrompt("Rate (milliseconds between requests) [" + strconv.Itoa(defaultRate) + "]: ")
+		LogPrompt("Rate (milliseconds between requests) [" + strconv.Itoa(defaultRate) + "]: ")
 		rateStr, _ := reader.ReadString('\n')
 		rateStr = strings.TrimSpace(rateStr)
 		rate := defaultRate
@@ -108,11 +110,12 @@ func runTestConfigInitWizard() (*testConfig, error) {
 			if v, err := strconv.Atoi(rateStr); err == nil && v > 0 {
 				rate = v
 			} else {
-				return nil, fmt.Errorf("invalid rate value")
+				LogError("invalid rate value")
+				os.Exit(1)
 			}
 		}
 
-		ColorPrompt("Concurrency limit [" + strconv.Itoa(defaultConcurrencyLimit) + "]: ")
+		LogPrompt("Concurrency limit [" + strconv.Itoa(defaultConcurrencyLimit) + "]: ")
 		clStr, _ := reader.ReadString('\n')
 		clStr = strings.TrimSpace(clStr)
 		concurrencyLimit := defaultConcurrencyLimit
@@ -120,7 +123,8 @@ func runTestConfigInitWizard() (*testConfig, error) {
 			if v, err := strconv.Atoi(clStr); err == nil && v > 0 {
 				concurrencyLimit = v
 			} else {
-				return nil, fmt.Errorf("invalid concurrency limit value")
+				LogError("invalid concurrency limit value")
+				os.Exit(1)
 			}
 		}
 

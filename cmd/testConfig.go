@@ -3,12 +3,9 @@ package cmd
 import (
 	"bufio"
 	"encoding/json"
-	"fmt"
 	"os"
 	"strings"
 	"time"
-
-	"github.com/Naganathan05/Load-Pulse/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -36,7 +33,7 @@ var initCmd = &cobra.Command{
 		// Default output path: testConfig.json in current directory
 		defaultPath := "testConfig.json"
 
-		ColorPrompt("Enter output JSON file path [" + defaultPath + "]: ")
+		LogPrompt("Enter output JSON file path [" + defaultPath + "]: ")
 		pathInput, _ := reader.ReadString('\n')
 		pathInput = strings.TrimSpace(pathInput)
 		if pathInput == "" {
@@ -49,32 +46,32 @@ var initCmd = &cobra.Command{
 		}
 		testConfigInitOutputPath := pathInput
 
-		ColorPrompt("This wizard will create a testConfig configuration file at: ")
-		ColorPrompt(testConfigInitOutputPath)
-		fmt.Println()
+		LogPrompt("This wizard will create a testConfig configuration file at: ")
+		LogPrompt(testConfigInitOutputPath)
+		LogNewLine()
 
 		cfg, err := runTestConfigInitWizard()
 		if err != nil {
-			utils.LogError("Failed to create testConfig configuration: " + err.Error())
+			LogError("Failed to create testConfig configuration: " + err.Error())
 			os.Exit(1)
 		}
 
 		data, err := json.MarshalIndent(cfg, "", "    ")
 		if err != nil {
-			utils.LogError("Failed to encode testConfig configuration as JSON: " + err.Error())
+			LogError("Failed to encode testConfig configuration as JSON: " + err.Error())
 			os.Exit(1)
 		}
 
 		if err := os.WriteFile(testConfigInitOutputPath, data, 0644); err != nil {
-			utils.LogError("Failed to write testConfig configuration file: " + err.Error())
+			LogError("Failed to write testConfig configuration file: " + err.Error())
 			os.Exit(1)
 		}
 
-		ColorPrompt("testConfig configuration written to: ")
-		ColorPrompt(testConfigInitOutputPath)
-		fmt.Println()
-		ColorHelp("You can validate it with:")
-		fmt.Print("  ")
-		ColorHelp("go run .\\main.go validate " + testConfigInitOutputPath)
+		LogPrompt("testConfig configuration written to: ")
+		LogPrompt(testConfigInitOutputPath)
+		LogNewLine()
+		LogHelp("You can validate it with:")
+		LogPlain("  ")
+		LogHelp("go run .\\main.go validate " + testConfigInitOutputPath)
 	},
 }

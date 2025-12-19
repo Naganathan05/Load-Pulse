@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"time"
@@ -18,15 +17,15 @@ var runCmd = &cobra.Command{
 	Use:   "run",
 	Short: "Run the load testing tool",
 	Run: func(cmd *cobra.Command, args []string) {
-		utils.LogInfo("Initializing Load Pulse")
-		utils.LogInfo("Using testConfig configuration file: " + testConfigPath)
+		LogInfo("Initializing Load Pulse")
+		LogInfo("Using testConfig configuration file: " + testConfigPath)
 		ok, _ := utils.IsDockerRunning()
 		if !ok {
-			fmt.Printf("Docker Engine Not Running. Please Start Docker Daemon and try again.\n")
+			LogError("Docker Engine Not Running. Please Start Docker Daemon and try again.\n")
 			os.Exit(1)
 		}
 
-		utils.LogInfo("Spinning up Docker Containers...")
+		LogInfo("Spinning up Docker Containers...")
 		startCmd := exec.Command("docker", "compose", "up", "-d", "--build")
 
 		env := os.Environ()
@@ -41,7 +40,7 @@ var runCmd = &cobra.Command{
 		startCmd.Stderr = nil
 
 		if err := startCmd.Run(); err != nil {
-			utils.LogError("Failed to start containers with Docker Compose: " + err.Error())
+			LogError("Failed to start containers with Docker Compose: " + err.Error())
 			os.Exit(1)
 		}
 
@@ -57,7 +56,7 @@ var runCmd = &cobra.Command{
 			time.Sleep(2 * time.Second)
 		}
 
-		utils.LogInfo("Load Test Completed. Logging the Aggregator Container Logs: ")
+		LogInfo("Load Test Completed. Logging the Aggregator Container Logs: ")
 		logsCmd := exec.Command("docker", "logs", "aggregator")
 		logsCmd.Stdout = os.Stdout
 		logsCmd.Stderr = os.Stderr
