@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"time"
@@ -12,54 +11,70 @@ import (
 	"github.com/Naganathan05/Load-Pulse/utils"
 )
 
+var testConfigPath string
+
 var runCmd = &cobra.Command{
 	Use:   "run",
 	Short: "Run the load testing tool",
 	Run: func(cmd *cobra.Command, args []string) {
-		utils.LogInfo("Initializing Load Pulse");
-		ok, _ := utils.IsDockerRunning();
+		LogInfo("Initializing Load Pulse")
+		LogInfo("Using testConfig configuration file: " + testConfigPath)
+		ok, _ := utils.IsDockerRunning()
 		if !ok {
-			fmt.Printf("Docker Engine Not Running. Please Start Docker Daemon and try again.\n");
-			os.Exit(1);
-		}		
-		
-		utils.LogInfo("Spinning up Docker Containers...");
-		startCmd := exec.Command("docker", "compose", "up", "-d", "--build");
+			LogError("Docker Engine Not Running. Please Start Docker Daemon and try again.\n")
+			os.Exit(1)
+		}
+
+		LogInfo("Spinning up Docker Containers...")
+		startCmd := exec.Command("docker", "compose", "up", "-d", "--build")
+
+		env := os.Environ()
+		env = append(env, "TESTCONFIG_FILE_PATH="+testConfigPath)
+		startCmd.Env = env
 
 		/*-------------------------- Debugging --------------------------
 		startCmd.Stdout = os.Stdout;
 		startCmd.Stderr = os.Stderr;
 		---------------------------------------------------------------*/
-		startCmd.Stdout = nil;
-		startCmd.Stderr = nil;
-		
-		if err := startCmd.Run(); err != nil {
-			utils.LogError("Failed to start containers with Docker Compose: " + err.Error());
-			os.Exit(1);
-		}		
+		startCmd.Stdout = nil
+		startCmd.Stderr = nil
 
-		s := spinner.New(spinner.CharSets[14], 100*time.Millisecond);
-		s.Suffix = "Load Testing in Progress...";
-		s.Start();
-		for {
-			out, _ := exec.Command("docker", "inspect", "--format", "{{.State.Running}}", "aggregator").Output();
-			if string(out) == "false\n" {
-				s.Stop();
-				break;
-			}
-			time.Sleep(2 * time.Second);
+		if err := startCmd.Run(); err != nil {
+			LogError("Failed to start containers with Docker Compose: " + err.Error())
+			os.Exit(1)
 		}
 
-		utils.LogInfo("Load Test Completed. Logging the Aggregator Container Logs: ");
-		logsCmd := exec.Command("docker", "logs", "aggregator");
-		logsCmd.Stdout = os.Stdout;
-		logsCmd.Stderr = os.Stderr;
-		logsCmd.Run();
+		s := spinner.New(spinner.CharSets[14], 100*time.Millisecond)
+		s.Suffix = "Load Testing in Progress..."
+		s.Start()
+		for {
+			out, _ := exec.Command("docker", "inspect", "--format", "{{.State.Running}}", "aggregator").Output()
+			if string(out) == "false\n" {
+				s.Stop()
+				break
+			}
+			time.Sleep(2 * time.Second)
+		}
 
-		cleanCmd.Run(cmd, args);
+		LogInfo("Load Test Completed. Logging the Aggregator Container Logs: ")
+		logsCmd := exec.Command("docker", "logs", "aggregator")
+		logsCmd.Stdout = os.Stdout
+		logsCmd.Stderr = os.Stderr
+		logsCmd.Run()
+
+		cleanCmd.Run(cmd, args)
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(runCmd);
+	rootCmd.AddCommand(runCmd)
+	rootCmd.AddCommand(initCmd)
+	rootCmd.AddCommand(validateCmd)
+	runCmd.Flags().StringVarP(
+		&testConfigPath,
+		"config",
+		"c",
+		"testConfig.json",
+		"Path to testConfig configuration file",
+	)
 }

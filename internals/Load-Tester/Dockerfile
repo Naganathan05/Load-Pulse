@@ -5,7 +5,7 @@ WORKDIR /workspace
 COPY internals/Config Config/
 COPY internals/Service Service/
 COPY internals/Statistics Statistics/
-COPY ../bench.json /workspace/bench.json
+# COPY ../testConfig.json /workspace/testConfig.json
 COPY ../.env /workspace/.env
 
 WORKDIR /workspace/Load-Tester
@@ -20,4 +20,4 @@ COPY internals/Load-Tester .
 RUN go build -o /workspace/Load-Tester/load-tester main.go
 
 EXPOSE 8080
-CMD ["./load-tester", "/workspace/bench.json"]
+CMD ["./load-tester", "/workspace/testConfig.json"]
