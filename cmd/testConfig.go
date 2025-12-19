@@ -14,8 +14,8 @@ import (
 
 type testConfig struct {
 	Req      []testConfigRequest `json:"requests"`
-	Host     string         `json:"host"`
-	Duration time.Duration  `json:"duration"`
+	Host     string              `json:"host"`
+	Duration time.Duration       `json:"duration"`
 }
 
 type testConfigRequest struct {
@@ -36,11 +36,7 @@ var initCmd = &cobra.Command{
 		// Default output path: testConfig.json in current directory
 		defaultPath := "testConfig.json"
 
-		fmt.Printf(
-			"%s %s ",
-			ColorPrompt("Enter output JSON file path"),
-			ColorPrompt("["+defaultPath+"]:"),
-		)
+		ColorPrompt("Enter output JSON file path [" + defaultPath + "]: ")
 		pathInput, _ := reader.ReadString('\n')
 		pathInput = strings.TrimSpace(pathInput)
 		if pathInput == "" {
@@ -53,11 +49,9 @@ var initCmd = &cobra.Command{
 		}
 		testConfigInitOutputPath := pathInput
 
-		fmt.Printf(
-			"%s %s\n",
-			ColorPrompt("This wizard will create a testConfig configuration file at:"),
-			ColorPrompt(testConfigInitOutputPath),
-		)
+		ColorPrompt("This wizard will create a testConfig configuration file at: ")
+		ColorPrompt(testConfigInitOutputPath)
+		fmt.Println()
 
 		cfg, err := runTestConfigInitWizard()
 		if err != nil {
@@ -76,19 +70,11 @@ var initCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		fmt.Printf(
-			"%s %s\n",
-			ColorPrompt("testConfig configuration written to:"),
-			ColorPrompt(testConfigInitOutputPath),
-		)
-		fmt.Println(ColorHelp("You can validate it with:"))
-		fmt.Printf(
-			"  %s\n",
-			ColorHelp("go run .\\main.go validate "+testConfigInitOutputPath),
-		)
+		ColorPrompt("testConfig configuration written to: ")
+		ColorPrompt(testConfigInitOutputPath)
+		fmt.Println()
+		ColorHelp("You can validate it with:")
+		fmt.Print("  ")
+		ColorHelp("go run .\\main.go validate " + testConfigInitOutputPath)
 	},
-}
-
-func init() {
-    rootCmd.AddCommand(initCmd)
 }
