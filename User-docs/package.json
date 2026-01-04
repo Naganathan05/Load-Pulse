@@ -4,12 +4,16 @@
   "type": "module",
   "scripts": {
     "dev": "vitepress dev docs",
-    "build": "vitepress build docs",
-    "serve": "vitepress serve docs"
+    "serve": "vitepress serve docs",
+    "build": "vite build",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:deploy": "gh-pages -d docs/.vitepress/dist"
   },
   "devDependencies": {
     "vue": "3.2.44",
-    "vitepress": "1.0.0-alpha.28"
+    "vitepress": "1.0.0-alpha.28",
+    "gh-pages": "^6.0.0"
   },
   "pnpm": {
     "peerDependencyRules": {
