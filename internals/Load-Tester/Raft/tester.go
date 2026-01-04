@@ -4,31 +4,37 @@ import (
 	"io"
 	// "fmt"
 	"time"
-	
+
 	"Load-Pulse/Config"
 	"Load-Pulse/Service"
 	"Load-Pulse/Statistics"
 )
 
 func RunTest(workerID int, l *Service.LoadTester) *Statistics.Stats {
-	var body []byte;
-	start := time.Now();
+	var body []byte
+	start := time.Now()
 
-	cfg := Config.GetConfig();
-	requestSleepTime := cfg.RequestSleepTime;
+	cfg := Config.GetConfig()
+	requestSleepTime := cfg.RequestSleepTime
 
-	currConcurrencyCount := Service.GetRequestCount();
-	for currConcurrencyCount > int64(l.ConcurrencyLimit) {
-		// workerMsg := fmt.Sprintf("[WORKER-ALERT-%d]: Concurrency Count: %d => Limit Reached !! Waiting\n", workerID, currConcurrencyCount);
-		// Service.LogError(workerMsg);
-		time.Sleep(time.Millisecond * time.Duration(requestSleepTime));
-		currConcurrencyCount = Service.GetRequestCount();
+	// Atomic Concurrency Check
+	for {
+		allowed, err := Service.TryIncrementRequestCount(l.ConcurrencyLimit)
+		if err != nil {
+			// If Redis fails, log and retry
+			Service.LogError("[ERR]: Redis Error in Concurrency Check: " + err.Error() + "\n")
+			time.Sleep(time.Millisecond * time.Duration(requestSleepTime))
+			continue
+		}
+		if allowed {
+			break
+		}
+		// Limit reached, wait and retry
+		time.Sleep(time.Millisecond * time.Duration(requestSleepTime))
 	}
 
-	Service.IncrementRequestCount();
-
-	resp, err := l.Client.Do(l.Request);
-	rd := time.Since(start);
+	resp, err := l.Client.Do(l.Request)
+	rd := time.Since(start)
 
 	stats := &Statistics.Stats{
 		Endpoint:       l.Endpoint,
@@ -38,15 +44,15 @@ func RunTest(workerID int, l *Service.LoadTester) *Statistics.Stats {
 	}
 
 	if err != nil {
-		stats.FailedRequests = 1;
-		Service.DecrementRequestCount();
-		return stats;
+		stats.FailedRequests = 1
+		Service.DecrementRequestCount()
+		return stats
 	}
 
-	defer resp.Body.Close();
+	defer resp.Body.Close()
 
-	body, _ = io.ReadAll(resp.Body);
-	stats.ResponseSize = float64(len(body));
-	Service.DecrementRequestCount();
-	return stats;
+	body, _ = io.ReadAll(resp.Body)
+	stats.ResponseSize = float64(len(body))
+	Service.DecrementRequestCount()
+	return stats
 }
