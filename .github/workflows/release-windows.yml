@@ -1,0 +1,29 @@
+name: Build Windows Binary and Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24.1'
+
+      - name: Build loadpulse.exe
+        run: |
+          GOOS=windows GOARCH=amd64 go build -o loadpulse.exe main.go
+
+      - name: Upload loadpulse.exe to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: loadpulse.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
