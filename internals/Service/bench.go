@@ -1,10 +1,9 @@
 package Service
 
 import (
-	"io"
 	"time"
-	"bytes"
-	"net/http"
+
+	"github.com/valyala/fasthttp"
 
 	"Load-Pulse/Statistics"
 )
@@ -17,8 +16,8 @@ type Bench struct {
 type LoadTester struct {
 	Endpoint         string
 	Conns            int
-	Request          *http.Request
-	Client           *http.Client
+	Request          *fasthttp.Request
+	Client           *fasthttp.Client
 	Stats            *Statistics.Stats
 	Dur              time.Duration
 	Rate             time.Duration
@@ -39,11 +38,11 @@ func Max(a int, b int) int {
 	return b;
 }
 
-func NewTester(r *http.Request, conns int, dur, rate time.Duration, end string, concurrencyLimit int) *LoadTester {
+func NewTester(r *fasthttp.Request, conns int, dur, rate time.Duration, end string, concurrencyLimit int) *LoadTester {
 	return &LoadTester{
 		Endpoint:         end,
 		Request:          r,
-		Client:           &http.Client{},
+		Client:           &fasthttp.Client{},
 		Conns:            conns,
 		Dur:              dur,
 		Rate:             rate,
@@ -61,16 +60,14 @@ func NewLoadTester(path string) (*Bench, error) {
 	}
 
 	for _, req := range conf.Req {
-		var buf io.Reader;
-		addr := conf.Host + req.Endpoint;
+		addr := conf.Host + req.Endpoint
+
+		r := &fasthttp.Request{}
+		r.SetRequestURI(addr)
+		r.Header.SetMethod(req.Method)
 
 		if req.Data != "" {
-			buf = bytes.NewBufferString(req.Data);
-		}
-
-		r, err := http.NewRequest(req.Method, addr, buf);
-		if err != nil {
-			return nil, err;
+			r.SetBodyString(req.Data)
 		}
 
 		lt := NewTester(r, req.Connections, conf.Duration*time.Second, req.Rate*time.Millisecond, req.Endpoint, req.ConcurrencyLimit);
