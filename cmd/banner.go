@@ -10,12 +10,11 @@ import (
 
 const (
 	logo = `
-    __                    __      ____        __         
-   / /   ____  ____ _____/ /_____/ __ \__  __/ /_________
-  / /   / __ \/ __ \/ __  /_____/ /_/ / / / / / ___/ _  /
- / /___/ /_/ / /_/ / /_/ /     / ____/ /_/ / (__  )  __/ 
-/_____/\____/\__,_/\__,_/     /_/    \__,_/_/____/\___/  
-                                                         
+  _                      _       ____        _
+ | |    ___   __ _  __| |     |  _ \ _   _| |___  ___
+ | |   / _ \ / _` + "`" + ` |/ _` + "`" + ` |_____| |_) | | | | / __|/ _ \
+ | |__| (_) | (_| | (_| |_____|  __/| |_| | \__ \  __/
+ |_____\___/ \__,_|\__,_|     |_|    \__,_|_|___/\___|
 `
 )
 
@@ -31,14 +30,8 @@ func PrintBanner() {
     }
 
     style := lipgloss.NewStyle().
-        Bold(true).
-        Foreground(lipgloss.Color("#FAFAFA")).
-        Background(lipgloss.Color("#7D56F4")).
-        PaddingTop(1).
-        PaddingBottom(1).
-        PaddingLeft(4).
-        PaddingRight(4).
-        MarginBottom(1)
+        Foreground(lipgloss.Color("86")). // Cyan
+        Bold(true)
 
     fmt.Println(style.Render(logo))
 }
