@@ -14,5 +14,6 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute() {
+    PrintBanner();
     cobra.CheckErr(rootCmd.Execute());
 }
