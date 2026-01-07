@@ -89,11 +89,6 @@ Each object in the `requests` array defines a single HTTP endpoint to test.
 **Valid Values:**
 - `"GET"`
 - `"POST"`
-- `"PUT"`
-- `"PATCH"`
-- `"DELETE"`
-- `"HEAD"`
-- `"OPTIONS"`
 
 **Example:**
 ```json
