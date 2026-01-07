@@ -11,7 +11,7 @@ Load testing tool built in Go which works based on the Raft consensus algorithm.
 Load-Pulse is a distributed load testing tool that uses Dockerized microservices and the Raft consensus algorithm to perform scalable performance testing of web APIs and services. It provides a simple CLI interface for defining and executing load tests, with automatic aggregation and reporting of results.
 
 ## High-level Architecture
-
+![Load-Pulse high-level architecture](/images/Architecture_diagram.png)
 
 Load-Pulse consists of multiple microservices working together:
 - **Load Tester** nodes that generate HTTP requests
