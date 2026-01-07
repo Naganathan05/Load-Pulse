@@ -248,15 +248,6 @@ $ loadpulse version
 Load Pulse version: 1.0.0
 ```
 
-### When to Use
-
-Use `loadpulse version` to:
-- Verify your installation
-- Check which version you're running
-- Report version information when seeking help
-
----
-
 ## Getting Help
 
 For help with any command, use the `--help` flag:
