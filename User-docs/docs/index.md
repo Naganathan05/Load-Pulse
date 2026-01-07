@@ -1,122 +1,89 @@
+---
+title: Load-Pulse
+---
+
 # Load-Pulse
 
-Load testing tool built in Go which works based on the Raft consensus
-algorithm. Designed for scalable and distributed benchmarking using
-Dockerized microservices.
+Load testing tool built in Go which works based on the Raft consensus algorithm. Designed for scalable and distributed benchmarking using Dockerized microservices.
 
-## High-level architecture
-![Load-Pulse high-level architecture](/images/Architecture_diagram.png)
+## Overview
 
-## Installing the CLI
+Load-Pulse is a distributed load testing tool that uses Dockerized microservices and the Raft consensus algorithm to perform scalable performance testing of web APIs and services. It provides a simple CLI interface for defining and executing load tests, with automatic aggregation and reporting of results.
 
-### Option 1: go install (recommended)
+## High-level Architecture
 
-If you have Go installed and your `GOBIN`/`GOPATH/bin` is on `PATH`:
+
+Load-Pulse consists of multiple microservices working together:
+- **Load Tester** nodes that generate HTTP requests
+- **Aggregator** service that collects and processes statistics
+- **Redis** for coordination and state management
+- **RabbitMQ** for message queuing between services
+
+## Quick Start
+
+Get started with Load-Pulse in three steps:
+
+### 1. Install Load-Pulse
 
 ```bash
 go install github.com/Naganathan05/Load-Pulse@latest
 ```
 
-This gives you a global `loadpulse` command you can run from any
-project directory.
+For detailed installation instructions, see the [Installation Guide](/install).
 
-### Option 2: clone and run locally
+### 2. Create a Test Configuration
 
-```bash
-git clone https://github.com/Naganathan05/Load-Pulse.git
-cd Load-Pulse
-go run ./main.go --help
-```
-
-On Windows PowerShell from the repo root:
-
-```powershell
-go run .\main.go --help
-```
-
-## The test configuration file (testConfig.json)
-
-Load-Pulse reads its test definition from a JSON file, called
-`testConfig.json`. It describes which endpoints to hit and how.
-
-High-level structure:
-
-- `host` – Base URL for your API, for example:
-  - `"http://localhost:8080/"`
-  - `"http://host.docker.internal:8081/"`
-- `duration` – How long the test should run (in seconds).
-- `requests` – Array of request definitions. Each item has:
-  - `method` – HTTP method, e.g. `"GET"`, `"POST"`.
-  - `endpoint` – Path relative to `host`, e.g. `"api/admin/getAllDepartments"`.
-  - `data` – Optional request body as a string (used mainly for `POST`/`PUT`).
-  - `connections` – Number of HTTP connections to open for this request.
-  - `rate` – Delay between requests in milliseconds.
-  - `concurrencyLimit` – Maximum concurrent in‑flight requests for this endpoint.
-
-This file can be manually created or using the interactive tool too.
-
-## Core commands
-
-All examples assume `loadpulse` is on your PATH.
-
-### `loadpulse init`
-
-Interactively create a `testConfig.json` file:
+Use the interactive wizard to create your test configuration:
 
 ```bash
 loadpulse init
 ```
 
-Use this when you want to set up a new test configuration (host,
-duration, endpoints, etc.) interactively.
+Or manually create a `testConfig.json` file. See the [Configuration Reference](/config-reference) for details.
 
-### `loadpulse validate`
-
-Check that a test configuration file is well‑formed and complete:
+### 3. Run Your Load Test
 
 ```bash
-loadpulse validate path/to/testConfig.json
+loadpulse run --config testConfig.json
 ```
 
-Use this before running a long test to catch mistakes in the config.
+View the [Commands documentation](/commands) for all available commands and options.
 
-### `loadpulse run`
+## Documentation
 
-Run a load test using the given configuration file:
+- **[Installation](/install)** – Complete installation guide and setup instructions
+- **[Commands](/commands)** – Detailed CLI command reference with examples
+- **[Configuration Reference](/config-reference)** – Complete `testConfig.json` field documentation
+- **[Results](/results)** – Understanding and interpreting load test results
+
+## Key Features
+
+- **Distributed Testing** – Uses multiple Docker containers for scalable load generation
+- **Raft Consensus** – Ensures reliable coordination between test nodes
+- **Simple Configuration** – JSON-based configuration with interactive setup wizard
+- **Comprehensive Metrics** – Response times, error rates, throughput, and more
+- **Docker-Based** – Easy deployment and isolation using Docker containers
+
+## Example Workflow
 
 ```bash
-loadpulse run --config path/to/testConfig.json
+# 1. Create configuration
+loadpulse init
+
+# 2. Validate configuration
+loadpulse validate testConfig.json
+
+# 3. Run load test
+loadpulse run --config testConfig.json
+
+# 4. Review results (displayed automatically)
 ```
 
-Use this from your project repository to actually execute the load
-test defined in your `testConfig.json`.
+## Learn More
 
-### `loadpulse clean`
-
-Stop and clean up any containers created by previous runs:
-
-```bash
-loadpulse clean
-```
-
-### `loadpulse version`
-
-Print the installed Load-Pulse version:
-
-```bash
-loadpulse version
-```
-
-## View load testing results
-
-Once a test run completes, Load-Pulse prints a summary of results
-from the aggregator. The key metrics include:
-
-- Average response time
-- Max response time
-- Min response time
-- Total requests sent
-- Successful vs failed requests
+- Explore the [Commands documentation](/commands) to see all available options
+- Read the [Configuration Reference](/config-reference) to understand all configuration options
+- Check the [Results guide](/results) to learn how to interpret your test output
 
 
 
