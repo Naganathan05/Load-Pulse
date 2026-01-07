@@ -26,8 +26,6 @@ go install github.com/Naganathan05/Load-Pulse@latest
 
 This installs Load-Pulse globally, giving you a `loadpulse` command that you can run from any directory.
 
-**Note:** Make sure `$GOPATH/bin` or `$GOBIN` is in your `PATH`. You can verify this by running:
-
 ```bash
 # On Linux/macOS
 echo $PATH | grep -o '[^:]*go[^:]*'
