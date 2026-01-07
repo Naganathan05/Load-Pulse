@@ -4,6 +4,19 @@ title: Load-Pulse
 
 # Load-Pulse
 
+<div style="text-align: center; color: #ff8800; font-weight: bold; font-family: monospace; margin: 2rem 0;">
+
+```
+██╗      ██████╗  █████╗ ██████╗       ██████╗ ██╗   ██╗██╗     ███████╗███████╗
+██║     ██╔═══██╗██╔══██╗██╔══██╗      ██╔══██╗██║   ██║██║     ██╔════╝██╔════╝
+██║     ██║   ██║███████║██║  ██║█████╗██████╔╝██║   ██║██║     ███████╗█████╗  
+██║     ██║   ██║██╔══██║██║  ██║╚════╝██╔═══╝ ██║   ██║██║     ╚════██║██╔══╝  
+███████╗╚██████╔╝██║  ██║██████╔╝      ██║     ╚██████╔╝███████╗███████║███████╗
+╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝       ╚═╝      ╚═════╝ ╚══════╝╚══════╝╚══════╝
+```
+
+</div>
+
 Load testing tool built in Go which works based on the Raft consensus algorithm. Designed for scalable and distributed benchmarking using Dockerized microservices.
 
 ## Overview
