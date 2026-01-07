@@ -112,7 +112,7 @@ On success:
 [INFO]: testConfig configuration is valid: testConfig.json
 ```
 
-On failure, the command will display specific error messages about what's wrong with the configuration.
+On failure, the command will display a error messages.
 
 ---
 
