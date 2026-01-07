@@ -103,7 +103,6 @@ loadpulse validate ../my-tests/api-test.json
 Use `loadpulse validate` when:
 - Before running a long load test to catch configuration errors early
 - After manually editing `testConfig.json`
-- As part of your CI/CD pipeline to verify configurations
 
 ### Output
 
