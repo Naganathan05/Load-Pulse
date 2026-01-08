@@ -26,14 +26,6 @@ go install github.com/Naganathan05/Load-Pulse@latest
 
 This installs Load-Pulse globally, giving you a `loadpulse` command that you can run from any directory.
 
-```bash
-# On Linux/macOS
-echo $PATH | grep -o '[^:]*go[^:]*'
-
-# On Windows PowerShell
-$env:PATH -split ';' | Select-String -Pattern 'go'
-```
-
 ### Option 2: Clone and Build Locally
 
 If you prefer to build from source or want to contribute:
