@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"strings"
 	"os"
 	"os/exec"
 	"time"
@@ -12,6 +13,8 @@ import (
 )
 
 var testConfigPath string
+var verbose bool
+
 
 var runCmd = &cobra.Command{
 	Use:   "run",
@@ -19,6 +22,9 @@ var runCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		LogInfo("Initializing Load Pulse")
 		LogInfo("Using testConfig configuration file: " + testConfigPath)
+		if verbose {
+		LogInfo("Verbose mode enabled")
+	}
 		ok, _ := utils.IsDockerRunning()
 		if !ok {
 			LogError("Docker Engine Not Running. Please Start Docker Daemon and try again.\n")
@@ -49,7 +55,7 @@ var runCmd = &cobra.Command{
 		s.Start()
 		for {
 			out, _ := exec.Command("docker", "inspect", "--format", "{{.State.Running}}", "aggregator").Output()
-			if string(out) == "false\n" {
+			if strings.Trimspace(string(out)) == "false" {
 				s.Stop()
 				break
 			}
@@ -77,4 +83,12 @@ func init() {
 		"testConfig.json",
 		"Path to testConfig configuration file",
 	)
+	runCmd.Flags().BoolVarP(
+	&verbose,
+	"verbose",
+	"v",
+	false,
+	"Enable detailed logging",
+)
+
 }
