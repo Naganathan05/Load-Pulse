@@ -4,17 +4,15 @@ title: Load-Pulse
 
 # Load-Pulse
 
-<div style="text-align: center; color: #ff8800; font-weight: bold; font-family: monospace; margin: 2rem 0;">
-
-```
+<div style="text-align: center; margin: 2rem 0;">
+<pre style="color: #ff8800; background: transparent; border: none; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.2; margin: 0; padding: 0; display: inline-block; text-align: left;">
 ██╗      ██████╗  █████╗ ██████╗       ██████╗ ██╗   ██╗██╗     ███████╗███████╗
 ██║     ██╔═══██╗██╔══██╗██╔══██╗      ██╔══██╗██║   ██║██║     ██╔════╝██╔════╝
 ██║     ██║   ██║███████║██║  ██║█████╗██████╔╝██║   ██║██║     ███████╗█████╗  
 ██║     ██║   ██║██╔══██║██║  ██║╚════╝██╔═══╝ ██║   ██║██║     ╚════██║██╔══╝  
 ███████╗╚██████╔╝██║  ██║██████╔╝      ██║     ╚██████╔╝███████╗███████║███████╗
 ╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝       ╚═╝      ╚═════╝ ╚══════╝╚══════╝╚══════╝
-```
-
+</pre>
 </div>
 
 Load testing tool built in Go which works based on the Raft consensus algorithm. Designed for scalable and distributed benchmarking using Dockerized microservices.
