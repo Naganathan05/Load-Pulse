@@ -9,8 +9,6 @@
 </pre>
 </div>
 
-# Load-Pulse
-
 Load testing tool built in Go which works based on the Raft consensus algorithm. Designed for scalable and distributed benchmarking using Dockerized microservices.
 
 ## Overview
