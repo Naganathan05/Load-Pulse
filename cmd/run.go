@@ -9,7 +9,9 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/Naganathan05/Load-Pulse/utils"
+	
 )
+var verbose bool
 
 var testConfigPath string
 
@@ -17,7 +19,11 @@ var runCmd = &cobra.Command{
 	Use:   "run",
 	Short: "Run the load testing tool",
 	Run: func(cmd *cobra.Command, args []string) {
-		LogInfo("Initializing Load Pulse")
+		if verbose {
+	        LogInfo("Initializing Load Pulse")
+	        LogInfo("Docker compose command started")
+}
+
 		LogInfo("Using testConfig configuration file: " + testConfigPath)
 		ok, _ := utils.IsDockerRunning()
 		if !ok {
@@ -76,5 +82,12 @@ func init() {
 		"c",
 		"testConfig.json",
 		"Path to testConfig configuration file",
+	)
+     runCmd.Flags().BoolVarP(
+		&verbose,
+		"verbose",
+		"v",
+		false,
+		"Enable verbose logging",
 	)
 }
