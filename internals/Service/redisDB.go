@@ -2,6 +2,7 @@ package Service
 
 import (
 	"context"
+	_ "embed"
 	"log"
 
 	config "Load-Pulse/Config"
@@ -13,17 +14,11 @@ var client *redis.Client
 
 var ctx = context.Background()
 
+//go:embed scripts/increment.lua
+var kaimScript string
+
 // Lua script to atomically check and increment
-var incrementScript = redis.NewScript(`
-	local key = KEYS[1]
-	local limit = tonumber(ARGV[1])
-	local current = tonumber(redis.call("GET", key) or "0")
-	if current < limit then
-		return redis.call("INCR", key)
-	else
-		return -1
-	end
-`)
+var incrementScript = redis.NewScript(kaimScript)
 
 func TryIncrementRequestCount(limit int) (bool, error) {
 	cfg := config.GetConfig()
