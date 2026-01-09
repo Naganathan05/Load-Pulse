@@ -1,35 +1,38 @@
 package Raft
 
 import (
-	"io"
-	"bytes"
 	// "fmt"
 	"time"
-	
+
+	"github.com/valyala/fasthttp"
+
 	"Load-Pulse/Config"
 	"Load-Pulse/Service"
 	"Load-Pulse/Statistics"
 )
 
 func RunTest(workerID int, l *Service.LoadTester) *Statistics.Stats {
-	var body []byte;
-	start := time.Now();
+	start := time.Now()
 
-	cfg := Config.GetConfig();
-	requestSleepTime := cfg.RequestSleepTime;
+	cfg := Config.GetConfig()
+	requestSleepTime := cfg.RequestSleepTime
 
-	currConcurrencyCount := Service.GetRequestCount();
+	currConcurrencyCount := Service.GetRequestCount()
 	for currConcurrencyCount > int64(l.ConcurrencyLimit) {
 		// workerMsg := fmt.Sprintf("[WORKER-ALERT-%d]: Concurrency Count: %d => Limit Reached !! Waiting\n", workerID, currConcurrencyCount);
 		// Service.LogError(workerMsg);
-		time.Sleep(time.Millisecond * time.Duration(requestSleepTime));
-		currConcurrencyCount = Service.GetRequestCount();
+		time.Sleep(time.Millisecond * time.Duration(requestSleepTime))
+		currConcurrencyCount = Service.GetRequestCount()
 	}
 
-	Service.IncrementRequestCount();
+	Service.IncrementRequestCount()
 
-	resp, err := l.DoRequest();
-	rd := time.Since(start);
+	req := fasthttp.AcquireRequest()
+	l.Request.CopyTo(req)
+	resp := fasthttp.AcquireResponse()
+
+	err := l.Client.Do(req, resp)
+	rd := time.Since(start)
 
 	stats := &Statistics.Stats{
 		Endpoint:       l.Endpoint,
@@ -39,15 +42,18 @@ func RunTest(workerID int, l *Service.LoadTester) *Statistics.Stats {
 	}
 
 	if err != nil {
-		stats.FailedRequests = 1;
-		Service.DecrementRequestCount();
-		return stats;
+		stats.FailedRequests = 1
+		Service.DecrementRequestCount()
+		fasthttp.ReleaseRequest(req)
+		fasthttp.ReleaseResponse(resp)
+		return stats
 	}
 
-	defer resp.Body.Close();
+	stats.ResponseSize = float64(len(resp.Body()))
 
-	body, _ = io.ReadAll(resp.Body);
-	stats.ResponseSize = float64(len(body));
-	Service.DecrementRequestCount();
-	return stats;
+	fasthttp.ReleaseRequest(req)
+	fasthttp.ReleaseResponse(resp)
+
+	Service.DecrementRequestCount()
+	return stats
 }

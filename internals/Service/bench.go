@@ -1,10 +1,9 @@
 package Service
 
 import (
-	"io"
 	"time"
-	"bytes"
-	"net/http"
+
+	"github.com/valyala/fasthttp"
 
 	"Load-Pulse/Statistics"
 )
@@ -17,13 +16,12 @@ type Bench struct {
 type LoadTester struct {
 	Endpoint         string
 	Conns            int
-	Request          *http.Request
-	Client           *http.Client
+	Request          *fasthttp.Request
+	Client           *fasthttp.Client
 	Stats            *Statistics.Stats
 	Dur              time.Duration
 	Rate             time.Duration
 	ConcurrencyLimit int
-	RequestBody      []byte
 }
 
 func Min(a int, b int) int {
@@ -40,17 +38,16 @@ func Max(a int, b int) int {
 	return b;
 }
 
-func NewTester(r *http.Request, conns int, dur, rate time.Duration, end string, concurrencyLimit int, reqBody []byte) *LoadTester {
+func NewTester(r *fasthttp.Request, conns int, dur, rate time.Duration, end string, concurrencyLimit int) *LoadTester {
 	return &LoadTester{
 		Endpoint:         end,
 		Request:          r,
-		Client:           &http.Client{},
+		Client:           &fasthttp.Client{},
 		Conns:            conns,
 		Dur:              dur,
 		Rate:             rate,
 		Stats:            &Statistics.Stats{Endpoint: end},
 		ConcurrencyLimit: concurrencyLimit,
-		RequestBody:      reqBody,
 	}
 }
 
@@ -63,19 +60,17 @@ func NewLoadTester(path string) (*Bench, error) {
 	}
 
 	for _, req := range conf.Req {
-		var buf io.Reader;
-		addr := conf.Host + req.Endpoint;
+		addr := conf.Host + req.Endpoint
+
+		r := &fasthttp.Request{}
+		r.SetRequestURI(addr)
+		r.Header.SetMethod(req.Method)
 
 		if req.Data != "" {
-			buf = bytes.NewBufferString(req.Data);
+			r.SetBodyString(req.Data)
 		}
 
-		r, err := http.NewRequest(req.Method, addr, buf);
-		if err != nil {
-			return nil, err;
-		}
-
-		lt := NewTester(r, req.Connections, conf.Duration*time.Second, req.Rate*time.Millisecond, req.Endpoint, req.ConcurrencyLimit, []byte(req.Data))
+		lt := NewTester(r, req.Connections, conf.Duration*time.Second, req.Rate*time.Millisecond, req.Endpoint, req.ConcurrencyLimit);
 		testers = append(testers, lt);
 	}
 
@@ -85,16 +80,4 @@ func NewLoadTester(path string) (*Bench, error) {
 	}
 
 	return b, nil;
-}
-
-func (l *LoadTester) DoRequest() (*http.Response, error) {
-	req := l.Request.Clone(l.Request.Context())
-	if len(l.RequestBody) > 0 {
-		req.Body = io.NopCloser(bytes.NewReader(l.RequestBody))
-		req.ContentLength = int64(len(l.RequestBody))
-		req.GetBody = func() (io.ReadCloser, error) {
-			return io.NopCloser(bytes.NewReader(l.RequestBody)), nil
-		}
-	}
-	return l.Client.Do(req)
 }
