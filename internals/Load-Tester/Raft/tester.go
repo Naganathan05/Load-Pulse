@@ -2,6 +2,7 @@ package Raft
 
 import (
 	"io"
+	"bytes"
 	// "fmt"
 	"time"
 	
@@ -27,7 +28,7 @@ func RunTest(workerID int, l *Service.LoadTester) *Statistics.Stats {
 
 	Service.IncrementRequestCount();
 
-	resp, err := l.Client.Do(l.Request);
+	resp, err := l.DoRequest();
 	rd := time.Since(start);
 
 	stats := &Statistics.Stats{
