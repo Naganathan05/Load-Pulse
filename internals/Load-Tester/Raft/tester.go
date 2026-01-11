@@ -1,9 +1,10 @@
 package Raft
 
 import (
-	"io"
 	// "fmt"
 	"time"
+
+	"github.com/valyala/fasthttp"
 
 	"Load-Pulse/Config"
 	"Load-Pulse/Service"
@@ -11,29 +12,29 @@ import (
 )
 
 func RunTest(workerID int, l *Service.LoadTester) *Statistics.Stats {
-	var body []byte
 	start := time.Now()
 
 	cfg := Config.GetConfig()
 	requestSleepTime := cfg.RequestSleepTime
 
-	// Atomic Concurrency Check
-	for {
-		allowed, err := Service.TryIncrementRequestCount(l.ConcurrencyLimit)
-		if err != nil {
-			// If Redis fails, log and retry
-			Service.LogError("[ERR]: Redis Error in Concurrency Check: " + err.Error() + "\n")
-			time.Sleep(time.Millisecond * time.Duration(requestSleepTime))
-			continue
-		}
-		if allowed {
-			break
-		}
-		// Limit reached, wait and retry
+	currConcurrencyCount := Service.GetRequestCount()
+	for currConcurrencyCount > int64(l.ConcurrencyLimit) {
+		// workerMsg := fmt.Sprintf("[WORKER-ALERT-%d]: Concurrency Count: %d => Limit Reached !! Waiting\n", workerID, currConcurrencyCount);
+		// Service.LogError(workerMsg);
 		time.Sleep(time.Millisecond * time.Duration(requestSleepTime))
+		currConcurrencyCount = Service.GetRequestCount()
 	}
 
-	resp, err := l.Client.Do(l.Request)
+	Service.IncrementRequestCount()
+
+	req := fasthttp.AcquireRequest()
+	l.Request.CopyTo(req)
+	if len(l.RequestBody) > 0 {
+		req.SetBody(l.RequestBody)
+	}
+	resp := fasthttp.AcquireResponse()
+
+	err := l.Client.Do(req, resp)
 	rd := time.Since(start)
 
 	stats := &Statistics.Stats{
@@ -46,13 +47,16 @@ func RunTest(workerID int, l *Service.LoadTester) *Statistics.Stats {
 	if err != nil {
 		stats.FailedRequests = 1
 		Service.DecrementRequestCount()
+		fasthttp.ReleaseRequest(req)
+		fasthttp.ReleaseResponse(resp)
 		return stats
 	}
 
-	defer resp.Body.Close()
+	stats.ResponseSize = float64(len(resp.Body()))
 
-	body, _ = io.ReadAll(resp.Body)
-	stats.ResponseSize = float64(len(body))
+	fasthttp.ReleaseRequest(req)
+	fasthttp.ReleaseResponse(resp)
+
 	Service.DecrementRequestCount()
 	return stats
 }
