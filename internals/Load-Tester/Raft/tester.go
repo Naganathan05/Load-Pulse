@@ -29,6 +29,9 @@ func RunTest(workerID int, l *Service.LoadTester) *Statistics.Stats {
 
 	req := fasthttp.AcquireRequest()
 	l.Request.CopyTo(req)
+	if len(l.RequestBody) > 0 {
+		req.SetBody(l.RequestBody)
+	}
 	resp := fasthttp.AcquireResponse()
 
 	err := l.Client.Do(req, resp)
