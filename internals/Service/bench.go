@@ -22,6 +22,7 @@ type LoadTester struct {
 	Dur              time.Duration
 	Rate             time.Duration
 	ConcurrencyLimit int
+	RequestBody      []byte
 }
 
 func Min(a int, b int) int {
@@ -38,7 +39,7 @@ func Max(a int, b int) int {
 	return b;
 }
 
-func NewTester(r *fasthttp.Request, conns int, dur, rate time.Duration, end string, concurrencyLimit int) *LoadTester {
+func NewTester(r *fasthttp.Request, conns int, dur, rate time.Duration, end string, concurrencyLimit int, reqBody []byte) *LoadTester {
 	return &LoadTester{
 		Endpoint:         end,
 		Request:          r,
@@ -48,6 +49,7 @@ func NewTester(r *fasthttp.Request, conns int, dur, rate time.Duration, end stri
 		Rate:             rate,
 		Stats:            &Statistics.Stats{Endpoint: end},
 		ConcurrencyLimit: concurrencyLimit,
+		RequestBody:      reqBody,
 	}
 }
 
@@ -70,7 +72,7 @@ func NewLoadTester(path string) (*Bench, error) {
 			r.SetBodyString(req.Data)
 		}
 
-		lt := NewTester(r, req.Connections, conf.Duration*time.Second, req.Rate*time.Millisecond, req.Endpoint, req.ConcurrencyLimit);
+		lt := NewTester(r, req.Connections, conf.Duration*time.Second, req.Rate*time.Millisecond, req.Endpoint, req.ConcurrencyLimit, []byte(req.Data));
 		testers = append(testers, lt);
 	}
 
